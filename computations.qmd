@@ -4,7 +4,7 @@ echo: false
 fig-height: 3.5
 fig-width: 6
 ---
-link to github: https://github.com/karisamarykopecek/544_Kopecek
+this is my link to github: https://github.com/karisamarykopecek/544_Kopecek
 
 This dataset contains a subset of the fuel economy data from the EPA.
 
