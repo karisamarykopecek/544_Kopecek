@@ -1,0 +1,293 @@
+---
+title: "Lab 1"
+author: Karisa Kopecek
+date: today
+format:
+  html:
+    theme: sketchy
+    embed-resources: true
+    echo: true
+---
+
+# Task 1
+
+## Question 1
+
+**Identify, and list here, what aesthetics are being used and which variables are being mapped to each aesthetic.**
+
+**Aesthetics and Variable Mappings:**
+
+-   **x-position**: Income (GDP per capita) on horizontal axis
+
+-   **y-position**: Life expectancy on vertical axis
+
+-   **geom_point**: scatter plot points representing each country
+
+-   **size**: larger circles represent countries with larger populations (see lower right corner)
+
+-   **color**: different colors represent different geographical regions (see upper right and legend)
+
+-   **fill**: The interior color of the circles based on continents (Asia etc)
+
+-   **alpha/transparency**: different transparency levels for the circles as you hover/click on them
+
+-   **scale:**
+
+    -   **scale_x_log10**: potential scale transformation for income axis (500 etc)
+
+    <!-- -->
+
+    -   **scale_y_continuous**: scale for life expectancy (20-90 years)
+
+-   **shape**: data points appear as circles
+
+-   **stroke/border**: The circles have borders/outlines
+
+-   **labels/text**:
+
+    -   Axis titles ("Income" as a label as well as "Life Expectancy")
+
+    -   Axis tick labels (numerical values)
+
+    -   Year "2010" as background text
+
+    -   Income level categories at top (ex: INCOME LEVEL 1)
+
+    -   Legend labels for regions (wan't sure if this counted as it might be part of the website design itself too)
+
+    -   Additional text like "per person (GDP/capita, PPPS inflation-adjusted)" that is on the lower right (this could also be coded as **annotations** potentially)
+
+-   **faceting**: income level indicators at the top suggest some kind of grouping/faceting
+
+\-**there could also be legend, background and other aesthetics relating to the interactive elements but I listed the main ones above \^ especially as it relates to what has been covered in class**
+
+Overall, the plot shows the relationship between income and life expectancy across different countries, with bubble size indicating population and color indicating regional grouping.
+
+## Question 2
+
+**Import the q1data.csv dataset.**
+
+```{python}
+#| code-fold: true
+
+import pandas as pd
+
+data_dir = "Data/q1data.csv"  
+q1_data = pd.read_csv(data_dir)
+q1_data.head() #making sure code shows up
+```
+
+## Question 3
+
+**Recreate the plot as best you can using plotnine**
+
+```{python}
+#| code-fold: true
+
+from plotnine import *
+
+plot = (ggplot(q1_data, aes(x="income", y="life_exp", color="world_bank_region", size="population")) +
+        geom_point(alpha=0.7) + #making points transparent
+        scale_x_log10() + #based on GPT40 example from notes
+        labs(x="Income Level (GDP/capita, PPPS inflation-adjusted)", y="Life expectancy (years)", color="World Regions", size="Population", title="2010 Income Vs. Life Expectancy") + #fixing labels
+        theme_minimal())
+plot
+```
+
+## Question 4
+
+**What other geometries could you use here besides geom_point? Provide an actual plot of another geometry being used here and why it’s good or bad for visualizing these data**
+
+```{python}
+#| code-fold: true
+
+plot2 = (ggplot(q1_data, aes(x="income", y="life_exp", color="world_bank_region")) +
+         geom_line() +
+         scale_x_log10() +
+         labs(title="geom_line (bad)", x="Income", y="Life expectancy") +
+         theme_minimal())
+
+plot2
+```
+
+Even though someone might think to use geom_line because the data is continous, geom_line is a bad choice because geom_line connects countries together creating different lines that don't show a clear relationship. Even though lines are between each country, there isn't a logical sequence between points (like tracking one country over time). Each country in this dataset is an independent observation, so connecting them with lines just creates chaos. geom_point works better because it shows each country as a separate data point without implying more of a connection between them (realistically the only connection is the continent of the country and that should be reflected in the data).
+
+# Task 2
+
+## Question 1
+
+**Identify, and list here, what aesthetics are being used and which variables are being mapped to each aesthetic.**
+
+**Aesthetics and Variable Mappings:**
+
+-   **x-position:** Exports (% of GDP) on horizontal axis
+
+-   **y-position:** Imports (% of GDP) on vertical axis
+
+-   **geom_point:** scatter plot points representing each country
+
+-   **size:** larger circles represent countries with larger energy use (see lower right corner)
+
+-   **color:** different colors represent different geographical regions (see upper right and legend)
+
+-   **fill:** The interior color of the circles based on world regions
+
+-   **alpha/transparency:** different transparency levels for the circles as you hover/click on them
+
+-   **scale:**
+
+    -   **scale_x_continuous:** scale for exports axis (0-220% etc)
+
+    -   **scale_y_continuous:** scale for imports axis (0-40% etc)
+
+-   **shape:** data points appear as circles
+
+-   **stroke/border:** The circles have borders/outlines
+
+-   **labels/text:**
+
+    -   Axis titles ("Exports (% of GDP)" and "Imports (% of GDP)")
+
+    -   Axis tick labels (numerical values)
+
+    -   Year "1997" as background text
+
+\-**there could also be legend, background and other aesthetics relating to the interactive elements but I listed the main ones above \^ especially as it relates to what has been covered in class**
+
+Overall, the plot shows the relationship between a country's imports and exports as percentages of GDP, with bubble size indicating energy use and color indicating regional grouping.
+
+## Question 2
+
+**Import the q2data.csv dataset.**
+
+```{python}
+#| code-fold: true
+
+import pandas as pd
+
+data_dir = "Data/q2data.csv"  
+q2_data = pd.read_csv(data_dir)
+q2_data.head() #making sure code shows up
+```
+
+## Question 3
+
+**Recreate the plot as best you can using plotnine**
+
+```{python}
+#| code-fold: true
+
+#filter out rows with missing data for the variables we need
+q2_data_clean = q2_data.dropna(subset=['exports', 'imports', 'energy', 'world_bank_region'])
+
+#converting energy to numeric to fix the map
+q2_data_clean['energy'] = pd.to_numeric(q2_data_clean['energy'], errors='coerce')
+
+plot3 = (ggplot(q2_data_clean, aes(x="exports", y="imports", color="world_bank_region", size="energy")) +
+        geom_point(alpha=0.7) + #making points transparent
+        labs(x="Exports (% of GDP)", y="Imports (% of GDP)", color="World Regions", size="Energy use", title="1997 Imports vs Exports") + #fixing labels
+        theme_minimal())
+plot3
+```
+
+## Question 4
+
+**What other geometries could you use here besides geom_point? Provide an actual plot of another geometry being used here and why it’s good or bad for visualizing these data**
+
+```{python}
+#| code-fold: true
+
+plot4 = (ggplot(q2_data_clean, aes(x="exports", y="imports", fill="world_bank_region")) +
+         geom_col() +
+         labs(title="geom_col (bad)", x="Exports (% of GDP)", y="Imports (% of GDP)") +
+         theme_minimal())
+
+plot4
+```
+
+geom_col is a bad choice for this data because it creates bars where the height represents imports and the x-position represents exports. However, bars imply that there is a categorical variable on the x-axis with a corresponding value on the y-axis, but both imports and exports are continuous variables. Additionally, the bars create overlapping elements when multiple countries have similar export values which is confusing for the reader. geom_point in contrast properly shows the relationship between two continuous variables (imports vs exports) and we can also show the energy use through the size of the circles.
+
+# Task 3
+
+## Question 1
+
+**Identify, and list here, what aesthetics are being used and which variables are being mapped to each aesthetic.**
+
+-   Aesthetics and Variable Mappings:
+
+-   **x-position**: Individuals using the Internet (%) on horizontal axis
+
+-   **y-position:** GDP/capita (\$) on vertical axis
+
+-   **geom_point:** scatter plot points representing each country
+
+-   **size:** larger circles represent countries with larger income (see lower right corner)
+
+-   **color**: different colors represent different geographical regions (see upper right and legend)
+
+-   **fill:** The interior color of the circles based on world regions
+
+-   **alpha/transparency:** different transparency levels for the circles as you hover/click on them
+
+-   **scale:**
+
+    -   **scale_x_continuous:** scale for internet usage axis (10 etc)
+
+    -   **scale_y_log10:** log scale transformation for GDP/capita axis (200-100k etc)
+
+-   **shape:** data points appear as circles
+
+-   **stroke/border:** The circles have borders/outlines
+
+-   **labels/text:**
+
+    -    Axis titles ("Individuals using the Internet" and "GDP/capita (\$)")
+
+    -   Axis tick labels (numerical values)- Year "2004" as background text
+
+    **there could also be legend, background and other aesthetics relating to the interactive elements but I listed the main ones above \^ especially as it relates to what has been covered in class**
+
+    Overall, the plot shows the relationship between internet usage and GDP per capita across different countries, with bubble size indicating income level and color indicating regional grouping.
+
+## Question 2
+
+**Import the q1data.csv dataset.**
+
+```{python}
+#| code-fold: true
+
+data_dir = "Data/q3data.csv"  
+q3_data = pd.read_csv(data_dir)
+q3_data.head() #making sure code shows up
+```
+
+## Question 3
+
+**Recreate the plot as best you can using plotnine**
+
+```{python}
+plot5 = (ggplot(q3_data, aes(x="internet_users", y="gdp", color="world_bank_region", size="income")) +
+        geom_point(alpha=0.7) + #making points transparent
+        scale_y_log10() + #log scale for GDP per capita 
+        labs(x="Individuals using the Internet (%)", y="GDP/capita ($)", color="World Regions", size="Income", title="2004 Internet Usage vs GDP per Capita") + #fixing labels
+        theme_minimal())
+plot5
+```
+
+## Question 4
+
+**What other geometries could you use here besides geom_point? Provide an actual plot of another geometry being used here and why it’s good or bad for visualizing these data**
+
+
+```{python}
+#| code-fold: true
+
+plot6 = (ggplot(q3_data, aes(x="internet_users", fill="world_bank_region")) +
+         geom_density(alpha=0.7) +
+         labs(title="geom_density (bad)", x="Individuals using the Internet (%)", y="Density") +
+         theme_minimal())
+
+plot6
+```
+
+geom_density is a bad choice because we lose the relationship between internet usage and GDP per capita, which is the main point of the original visualization. Additionally, the log spacing in the first graph is hard to accomplish with the density plot, even when spacing things out it still ends up somewhat squished because of the nature of the density plot (area under each one is harder to quantify in the mind of the reader in my opinion). geom_point is superior because it shows the correlation between internet usage and GDP per capita while showing the income level. In the density curve continents are also all grouped together and it can be hard to see individual outliers in the data. 
