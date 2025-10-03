@@ -21,45 +21,17 @@ format:
 
 -   **y-position**: Life expectancy on vertical axis
 
--   **geom_point**: scatter plot points representing each country
-
 -   **size**: larger circles represent countries with larger populations (see lower right corner)
 
 -   **color**: different colors represent different geographical regions (see upper right and legend)
-
--   **fill**: The interior color of the circles based on continents (Asia etc)
-
--   **alpha/transparency**: different transparency levels for the circles as you hover/click on them
 
 -   **scale:**
 
     -   **scale_x_log10**: potential scale transformation for income axis (500 etc)
 
-    <!-- -->
-
     -   **scale_y_continuous**: scale for life expectancy (20-90 years)
 
--   **shape**: data points appear as circles
-
--   **stroke/border**: The circles have borders/outlines
-
--   **labels/text**:
-
-    -   Axis titles ("Income" as a label as well as "Life Expectancy")
-
-    -   Axis tick labels (numerical values)
-
-    -   Year "2010" as background text
-
-    -   Income level categories at top (ex: INCOME LEVEL 1)
-
-    -   Legend labels for regions (wan't sure if this counted as it might be part of the website design itself too)
-
-    -   Additional text like "per person (GDP/capita, PPPS inflation-adjusted)" that is on the lower right (this could also be coded as **annotations** potentially)
-
--   **faceting**: income level indicators at the top suggest some kind of grouping/faceting
-
-\-**there could also be legend, background and other aesthetics relating to the interactive elements but I listed the main ones above \^ especially as it relates to what has been covered in class**
+**labels/text**, **fill**,**alpha/transparency**, **there could also be legend, background and other aesthetics relating to the interactive elements but I listed the main ones above \^ especially as it relates to what has been covered in class**
 
 Overall, the plot shows the relationship between income and life expectancy across different countries, with bubble size indicating population and color indicating regional grouping.
 
@@ -86,13 +58,29 @@ q1_data.head() #making sure code shows up
 
 from plotnine import *
 
-plot = (ggplot(q1_data, aes(x="income", y="life_exp", color="world_bank_region", size="population")) +
-        geom_point(alpha=0.7) + #making points transparent
-        scale_x_log10() + #based on GPT40 example from notes
-        labs(x="Income Level (GDP/capita, PPPS inflation-adjusted)", y="Life expectancy (years)", color="World Regions", size="Population", title="2010 Income Vs. Life Expectancy") + #fixing labels
+plot = (ggplot(q1_data, aes(x="income", y="life_exp", color="four_regions", size="population")) +
+        geom_point(alpha=0.5) +
+        scale_x_continuous(
+            trans="log2", #as shown in class both the breaks and log base 2
+            breaks=[500, 1000, 2000, 4000, 8000, 16000, 32000, 64000],
+            labels=["500", "1000", "2000", "4000", "8000", "16k", "32k", "64k"],
+            limits=[400, 80000] #needed these limits to avoid error message about lengths being different
+        ) +
+        scale_y_continuous(
+            breaks=[20, 30, 40, 50, 60, 70, 80, 90],
+            limits=[20, 90]
+        ) +
+        labs(x="Income Level (GDP/capita, PPPS inflation-adjusted)", 
+             y="Life expectancy (years)", 
+             color="World Regions", 
+             size="Population", 
+             title="2010 Income Vs. Life Expectancy") +
         theme_minimal())
+
 plot
 ```
+
+
 
 ## Question 4
 
@@ -101,7 +89,7 @@ plot
 ```{python}
 #| code-fold: true
 
-plot2 = (ggplot(q1_data, aes(x="income", y="life_exp", color="world_bank_region")) +
+plot2 = (ggplot(q1_data, aes(x="income", y="life_exp", color="four_regions")) +
          geom_line() +
          scale_x_log10() +
          labs(title="geom_line (bad)", x="Income", y="Life expectancy") +
@@ -124,15 +112,9 @@ Even though someone might think to use geom_line because the data is continous, 
 
 -   **y-position:** Imports (% of GDP) on vertical axis
 
--   **geom_point:** scatter plot points representing each country
-
 -   **size:** larger circles represent countries with larger energy use (see lower right corner)
 
 -   **color:** different colors represent different geographical regions (see upper right and legend)
-
--   **fill:** The interior color of the circles based on world regions
-
--   **alpha/transparency:** different transparency levels for the circles as you hover/click on them
 
 -   **scale:**
 
@@ -140,19 +122,7 @@ Even though someone might think to use geom_line because the data is continous, 
 
     -   **scale_y_continuous:** scale for imports axis (0-40% etc)
 
--   **shape:** data points appear as circles
-
--   **stroke/border:** The circles have borders/outlines
-
--   **labels/text:**
-
-    -   Axis titles ("Exports (% of GDP)" and "Imports (% of GDP)")
-
-    -   Axis tick labels (numerical values)
-
-    -   Year "1997" as background text
-
-\-**there could also be legend, background and other aesthetics relating to the interactive elements but I listed the main ones above \^ especially as it relates to what has been covered in class**
+**labels/text**, **fill**, **alpha/transparency**, **there could also be legend, background and other aesthetics relating to the interactive elements but I listed the main ones above \^ especially as it relates to what has been covered in class**
 
 Overall, the plot shows the relationship between a country's imports and exports as percentages of GDP, with bubble size indicating energy use and color indicating regional grouping.
 
@@ -178,13 +148,21 @@ q2_data.head() #making sure code shows up
 #| code-fold: true
 
 #filter out rows with missing data for the variables we need
-q2_data_clean = q2_data.dropna(subset=['exports', 'imports', 'energy', 'world_bank_region'])
+q2_data_clean = q2_data.dropna(subset=['exports', 'imports', 'energy', 'four_regions'])
 
 #converting energy to numeric to fix the map
 q2_data_clean['energy'] = pd.to_numeric(q2_data_clean['energy'], errors='coerce')
 
-plot3 = (ggplot(q2_data_clean, aes(x="exports", y="imports", color="world_bank_region", size="energy")) +
+plot3 = (ggplot(q2_data_clean, aes(x="exports", y="imports", color="four_regions", size="energy")) +
         geom_point(alpha=0.7) + #making points transparent
+        scale_x_continuous(
+            breaks=[20, 40, 60, 80, 100, 120, 140, 160, 180, 200, 220],
+            limits=[0, 220] #added to fix axis getting cut off at 160
+        ) +
+        scale_y_continuous(
+            breaks=[50, 100, 150, 200, 250, 300, 350, 400],
+            limits=[0, 400]
+        ) +
         labs(x="Exports (% of GDP)", y="Imports (% of GDP)", color="World Regions", size="Energy use", title="1997 Imports vs Exports") + #fixing labels
         theme_minimal())
 plot3
@@ -197,15 +175,18 @@ plot3
 ```{python}
 #| code-fold: true
 
-plot4 = (ggplot(q2_data_clean, aes(x="exports", y="imports", fill="world_bank_region")) +
-         geom_col() +
-         labs(title="geom_col (bad)", x="Exports (% of GDP)", y="Imports (% of GDP)") +
-         theme_minimal())
+plot4 = (ggplot(q2_data_clean, aes(x='exports', y='imports', color='four_regions')) +
+              geom_smooth(method='lm', se=True, alpha=0.1) +
+              labs(title='Trade Relationship with Trend Lines by Region 1997',
+                   x='Exports (% of GDP)',
+                   y='Imports (% of GDP)',
+                   color='four_regions') +
+              theme_minimal())
 
 plot4
 ```
 
-geom_col is a bad choice for this data because it creates bars where the height represents imports and the x-position represents exports. However, bars imply that there is a categorical variable on the x-axis with a corresponding value on the y-axis, but both imports and exports are continuous variables. Additionally, the bars create overlapping elements when multiple countries have similar export values which is confusing for the reader. geom_point in contrast properly shows the relationship between two continuous variables (imports vs exports) and we can also show the energy use through the size of the circles.
+Even though someone might think to use geom_smooth because it shows the relationship between imports and exports and works with two continuous variables, it's actually a bad choice for this data because it hides all the individual countries. The smooth lines make it seem like there's a perfect linear relationshipin the data, but that's not true since different countries have totally different economies. Plus, you completely lose the energy use information since you can't show the size of points with smooth lines (I could add geom_point to this to be able to do that, but it could be confusing with all the lines already squished). geom_point is better because you aren't showing an oversimplified trend.
 
 # Task 3
 
@@ -219,35 +200,19 @@ geom_col is a bad choice for this data because it creates bars where the height 
 
 -   **y-position:** GDP/capita (\$) on vertical axis
 
--   **geom_point:** scatter plot points representing each country
-
 -   **size:** larger circles represent countries with larger income (see lower right corner)
 
 -   **color**: different colors represent different geographical regions (see upper right and legend)
-
--   **fill:** The interior color of the circles based on world regions
-
--   **alpha/transparency:** different transparency levels for the circles as you hover/click on them
 
 -   **scale:**
 
     -   **scale_x_continuous:** scale for internet usage axis (10 etc)
 
-    -   **scale_y_log10:** log scale transformation for GDP/capita axis (200-100k etc)
+    -   **scale_y_log2:** log scale transformation for GDP/capita axis (200-100k etc)
 
--   **shape:** data points appear as circles
+**labels/text**, **fill**, **alpha/transparency**, **there could also be legend, background and other aesthetics relating to the interactive elements but I listed the main ones above \^ especially as it relates to what has been covered in class**
 
--   **stroke/border:** The circles have borders/outlines
-
--   **labels/text:**
-
-    -    Axis titles ("Individuals using the Internet" and "GDP/capita (\$)")
-
-    -   Axis tick labels (numerical values)- Year "2004" as background text
-
-    **there could also be legend, background and other aesthetics relating to the interactive elements but I listed the main ones above \^ especially as it relates to what has been covered in class**
-
-    Overall, the plot shows the relationship between internet usage and GDP per capita across different countries, with bubble size indicating income level and color indicating regional grouping.
+Overall, the plot shows the relationship between internet usage and GDP per capita across different countries, with bubble size indicating income level and color indicating regional grouping.
 
 ## Question 2
 
@@ -266,10 +231,21 @@ q3_data.head() #making sure code shows up
 **Recreate the plot as best you can using plotnine**
 
 ```{python}
-plot5 = (ggplot(q3_data, aes(x="internet_users", y="gdp", color="world_bank_region", size="income")) +
+#| code-fold: true
+
+plot5 = (ggplot(q3_data, aes(x="internet_users", y="gdp", color="four_regions", size="income")) +
         geom_point(alpha=0.7) + #making points transparent
-        scale_y_log10() + #log scale for GDP per capita 
-        labs(x="Individuals using the Internet (%)", y="GDP/capita ($)", color="World Regions", size="Income", title="2004 Internet Usage vs GDP per Capita") + #fixing labels
+        scale_x_continuous(
+            breaks=[0, 10, 20, 30, 40, 50, 60, 70, 80, 90],
+            limits=[0, 90]
+        ) +
+        scale_y_continuous(
+            trans="log2",
+            breaks=[200, 500, 1000, 2000, 5000, 10000, 20000, 50000, 100000],
+            labels=["200", "500", "1k", "2k", "5k", "10k", "20k", "50k", "100k"],
+            limits=[200, 100000]
+        ) +
+        labs(x="Individuals using the Internet (%)", y="GDP/capita ($)", color="World Regions", size="Income", title="2001 Internet Usage vs GDP per Capita") + #fixing labels
         theme_minimal())
 plot5
 ```
@@ -282,12 +258,16 @@ plot5
 ```{python}
 #| code-fold: true
 
-plot6 = (ggplot(q3_data, aes(x="internet_users", fill="world_bank_region")) +
-         geom_density(alpha=0.7) +
-         labs(title="geom_density (bad)", x="Individuals using the Internet (%)", y="Density") +
-         theme_minimal())
+plot6_smooth = (ggplot(q3_data, aes(x='internet_users', y='gdp')) +
+               geom_smooth(method='lm', alpha=0.7) +
+               scale_y_log10() +
+               labs(title="geom_smooth - Internet Usage vs GDP", 
+                    x="Individuals using the Internet (%)", 
+                    y="GDP per Capita (log scale)") +
+               theme_minimal())
 
-plot6
+plot6_smooth
 ```
 
-geom_density is a bad choice because we lose the relationship between internet usage and GDP per capita, which is the main point of the original visualization. Additionally, the log spacing in the first graph is hard to accomplish with the density plot, even when spacing things out it still ends up somewhat squished because of the nature of the density plot (area under each one is harder to quantify in the mind of the reader in my opinion). geom_point is superior because it shows the correlation between internet usage and GDP per capita while showing the income level. In the density curve continents are also all grouped together and it can be hard to see individual outliers in the data. 
+Even though someone might think to use geom_smooth because it shows the relationship between internet usage and GDPand works with two continuous variables, it's actually a bad choice because the y is on a log scale not a linear one and there are different clusters that can't be seen on this graph. The black line makes you focus on a linear trend instead of seeing patterns like how European countries cluster differently from other countries. The line just shows "higher internet usage correlates with higher GDP", geom_point is better because it shows the complexity of the graph.
+
