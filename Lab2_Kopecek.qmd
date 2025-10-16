@@ -1,0 +1,373 @@
+---
+title: "Lab 2"
+author: Karisa Kopecek
+date: today
+format:
+  html:
+    embed-resources: true
+    echo: true
+---
+
+## Question 0
+
+```{python}
+#| code-fold: true
+
+import pandas as pd
+from plotnine import *
+
+data_dir = "Data/avocado-updated-2020.csv"  
+avo_data = pd.read_csv(data_dir)
+avo_data.head() #making sure code shows up
+```
+
+## Question 1
+
+```{python}
+#| code-fold: true
+
+avo_data.shape #number of rows and colums for description
+```
+
+This dataset contains 33,045 rows/records of avocado sales across the United States and it contains 13 columns. The columns track things like the date, average price, total sales volume, and breaks down sales by avocado size (using codes like 4046, 4225, 4770) and bag types (small, large, and extra-large). The data also shows two types of avocados (conventional and organic) and different geographies and years. Basically, it's a collection of avocado market data that shows how prices and sales change over time and location, which could be useful to see different trends or compare how different avocados sell in different areas.
+
+## Question 2
+
+```{python}
+#| code-fold: true
+
+#creating copy of the dataset to avoid messing up original data
+avocado_clean = avo_data.copy()
+
+#renaming code columns to be based on actual avocados more and those avocado's sizes
+avocado_clean = avocado_clean.rename(columns={
+    '4046': 'num_small_hass_sold',
+    '4225': 'num_large_hass_sold', 
+    '4770': 'num_xlarge_hass_sold',
+    'average_price': 'average_price_single', #wanted to make sure it was clear that the average price is for 1 avo
+    'total_volume': 'total_volume_sold' #wanted to make sure it was clear that volume related to selling not size 
+})
+```
+
+```{python}
+#| code-fold: true
+
+#converting date to datetime format just to make sure its all the same
+avocado_clean['date'] = pd.to_datetime(avocado_clean['date'])
+
+#avocado_clean.head() #checking output, only did this on my own
+
+```
+
+```{python}
+#| code-fold: true
+
+#finding all the unique vaLues under geography to better understand it
+avocado_clean['geography'].unique()
+```
+
+```{python}
+#| code-fold: true
+
+#creating geo_type variable
+avocado_clean['geo_type'] = 'city'
+
+#find all rows where the geography column equals 'Total U.S.', and for those rows, set the geo_type column to 'national':
+
+#national level
+avocado_clean.loc[avocado_clean['geography'].isin(['Total U.S.']), 'geo_type'] = 'national'
+
+#state level 
+avocado_clean.loc[avocado_clean['geography'].isin(['California', 'South Carolina']), 'geo_type'] = 'state'
+
+#regional level
+avocado_clean.loc[avocado_clean['geography'].isin(['West', 'Northeast', 'Southeast', 'Midsouth', 
+                                          'South Central', 'Great Lakes', 'Plains', 
+                                          'Northern New England', 'West Tex/New Mexico']), 'geo_type'] = 'region'
+
+#city level (chose to keep slashes for some cities rather than making another grouping like big city, smaller city as the slashed cities are ALL very close by one another and it would be misleading I feel to separate)
+avocado_clean.loc[avocado_clean['geography'].isin(['Albany', 'Atlanta', 'Baltimore/Washington', 'Boise', 'Boston',
+                                          'Buffalo/Rochester', 'Charlotte', 'Chicago', 'Cincinnati/Dayton',
+                                          'Columbus', 'Dallas/Ft. Worth', 'Denver', 'Detroit', 'Grand Rapids',
+                                          'Harrisburg/Scranton', 'Hartford/Springfield', 'Houston', 'Indianapolis',
+                                          'Jacksonville', 'Las Vegas', 'Los Angeles', 'Louisville', 
+                                          'Miami/Ft. Lauderdale', 'Nashville', 'New Orleans/Mobile', 'New York',
+                                          'Orlando', 'Philadelphia', 'Phoenix/Tucson', 'Pittsburgh', 'Portland',
+                                          'Raleigh/Greensboro', 'Richmond/Norfolk', 'Roanoke', 'Sacramento',
+                                          'San Diego', 'San Francisco', 'Seattle', 'Spokane', 'St. Louis',
+                                          'Syracuse', 'Tampa']), 'geo_type'] = 'city'
+
+#finding all the unique vaLues under geo_type to make sure it worked
+avocado_clean['geo_type'].unique()
+```
+
+```{python}
+#| code-fold: true
+
+avocado_clean.head()
+```
+
+# Exercises
+
+## Question 3
+
+```{python}
+#| code-fold: true
+
+#filtering for what we want
+sold_most = avocado_clean[(avocado_clean['geo_type'] == 'region') & (avocado_clean['year'] == 2017) 
+                                                                  & (avocado_clean['type'] == 'organic')]
+
+#for each geography, sum the total number of small hass sold for that region, then sort values high to low, then return the first (which will be highest) vaue from that 
+sold_most.groupby('geography')['num_small_hass_sold'].sum().sort_values(ascending=False).iloc[0:1]
+
+```
+
+**The major geographical region that sold the most total organic, small Hass avocados in 2017 was the West**
+
+-   I could have done .index to get just "West" to return, but chose not to because I liked seeing values personally
+
+## Question 4
+
+```{python}
+#| code-fold: true
+
+#Split the date variable into month, day, and year variables
+avocado_clean['month'] = avocado_clean['date'].dt.month
+avocado_clean['day'] = avocado_clean['date'].dt.day
+avocado_clean['year_from_date'] = avocado_clean['date'].dt.year #made new name to avoid messing up year column
+
+#for each month, average the total volume of avocados sold for that month, then sort values high to low, then return the first (which will be highest) vaue from that 
+avocado_clean.groupby('month')['total_volume_sold'].mean().sort_values(ascending=False).iloc[0:1]
+
+```
+
+**The month with the highest average volume of avocado sales is 5 (May)**
+
+## Question 5
+
+```{python}
+#| code-fold: true
+
+#Finding the top 5 metro area geographical regions that sold the most total avocados
+
+#filtering for cities only
+metro_data = avocado_clean[avocado_clean['geo_type'] == 'city']
+
+#getting the names of the top 5 areas and storing
+metro_data_5 = metro_data.groupby('geography')['total_volume_sold'].mean().sort_values(ascending=False).head(5).index
+
+#filtering the clean dataset for those 5 names
+metro_data_plt = avocado_clean[avocado_clean['geography'].isin(metro_data_5)]
+```
+
+```{python}
+#| code-fold: true
+
+#now making boxplot
+(ggplot(metro_data_plt, aes(x='geography', y='total_volume_sold', fill='geography'))
+ + geom_boxplot()
+ + labs(title='Top 5 Metro Areas with Highest Volume of Avocados Sold',
+        x='Metro Area',
+        y='Total Volume of Avocados Sold')
+ + scale_x_discrete(limits=metro_data_5) #putting them in order greatest to least
+ + scale_y_continuous(breaks=range(0, 6000000, 500000)) #making y axis have more values
+ + theme_minimal()) #clear background
+
+```
+
+# Pivoting
+
+## Question 6
+
+```{python}
+#| code-fold: true
+
+#creating dataset with only the four California metro regions
+california_regions = ['Los Angeles', 'San Diego', 'Sacramento', 'San Francisco']
+
+california_data = avocado_clean[avocado_clean['geography'].isin(california_regions)]
+
+california_data.head()
+```
+
+## Question 7
+
+**summary statistics:**
+
+some summary stats like std, min etc for each geography and type (for single avocado)
+
+```{python}
+#| code-fold: true
+
+#summary statistics for each geography and type combination
+california_data.groupby(['geography', 'type'])['average_price_single'].describe()
+```
+
+price difference organic-conventional, first going to transform the data, here is my sketch of what it should look like:
+
+![](images/Screenshot%202025-10-05%20144600.png){width="394"}
+
+```{python}
+#| code-fold: true
+
+#pivot the data so organic and conventional become separate columns
+pivoted_data = california_data.pivot_table(
+    values='average_price_single',
+    index='geography',
+    columns='type',
+    aggfunc='mean'
+)
+```
+
+price difference organic-conventional:
+
+```{python}
+#| code-fold: true
+
+#subtraction
+price_diff = (pivoted_data['organic'] - pivoted_data['conventional']).sort_values(ascending=False)
+price_diff
+```
+
+percentage difference: Organic costs X% more than conventional
+
+```{python}
+#| code-fold: true
+
+# Calculate percentage difference
+pivoted_data['percentage_diff'] = ((pivoted_data['organic'] - pivoted_data['conventional']) / 
+                                pivoted_data['conventional'] * 100).sort_values(ascending=False)
+pivoted_data
+```
+
+visualization:
+
+```{python}
+#| code-fold: true
+
+(ggplot(california_data, aes(x='geography', y='average_price_single', fill='type')) 
+    + geom_col(position='dodge')
+    + labs(x='', y='Average Price ($)', 
+    title='Organic vs. Conventional Avocado Prices by Region') 
+    + scale_x_discrete(limits=price_diff.index.tolist()) #putting them in order greatest to least, had to make diff into list for this to work
+    + theme_minimal()) #no background 
+
+```
+
+## Question 8
+
+```{python}
+#| code-fold: true
+
+#find total sales
+california_data['total_hass'] = (california_data['num_small_hass_sold'] + california_data['num_large_hass_sold'] + california_data['num_xlarge_hass_sold'])
+
+#percentages for y axis: what percent of total sales were that size
+california_data['prop_small'] = california_data['num_small_hass_sold'] / california_data['total_hass']
+california_data['prop_large'] = california_data['num_large_hass_sold'] / california_data['total_hass']
+california_data['prop_xlarge'] = california_data['num_xlarge_hass_sold'] / california_data['total_hass']
+
+#for geography and type calculate the average percentage for each size across all the weeks
+avg_each = california_data.groupby(['geography', 'type'])[['prop_small', 'prop_large', 'prop_xlarge']].mean().reset_index() #had to reset index after groupby to use those columns as normal later on, got errors without it
+
+#converted to long format based on ch.5 in notes, had to use long format because i wanted small, xlarge etc as rows instead of columns
+plot_data = avg_each.melt(id_vars=['geography', 'type'], var_name='size', value_name='proportion')
+
+#order of size categories from given is: (xlarge, large, small), this makes bars look like top is xlarge like the given provided graph
+plot_data['size'] = pd.Categorical(plot_data['size'], categories=['prop_xlarge', 'prop_large', 'prop_small'], ordered=True)
+
+#create plot
+(ggplot(plot_data, aes(x='geography', y='proportion', fill='size')) +
+ geom_col(position='stack') +
+ facet_wrap('~type') + #to get convedntional and organic at top
+ labs(x='Region of California', y='Proportion', 
+      title='Proportion of Average Hass Avocado Sales by Size') +
+ theme_minimal())
+```
+
+# Using Outside Data
+
+the data I used link: <https://www.car.org/marketdata/data/housingdata>
+*I did end up having to change the date column slightly within excel because of very weird data issues
+
+reading in data: 
+
+```{python}
+#| code-fold: true
+
+data_dir = "Data/RealEstate.csv"  
+real_data = pd.read_csv(data_dir)
+real_data.head() #making sure code shows up
+
+```
+
+
+```{python}
+#| code-fold: true
+
+#filter for those columns I want only
+columns_to_keep = ['year', 'CA', 'Los Angeles', 'San Diego', 'Sacramento', 'San Francisco']
+real_estate = real_data[columns_to_keep].copy()
+
+#making sure year is in datetime format (It made me use .loc based on errors I got)
+california_data.loc[:, 'year'] = pd.to_datetime(california_data['date']).dt.year
+
+```
+
+Joined with my old data:
+
+```{python}
+#| code-fold: true
+
+#transform real_estate data from wide to long format
+#converts columns like 'Los Angeles', 'San Diego' into rows instead of column titles
+
+real_estate_long = pd.melt(
+    real_estate,
+    id_vars=['year'],
+    value_vars=['CA', 'Los Angeles', 'San Diego', 'Sacramento', 'San Francisco'],
+    var_name='geography',
+    value_name='price'
+)
+```
+
+```{python}
+#| code-fold: true
+
+#california_data has a geography column, inner join on year and geography (keep when matches both)
+joined_data = pd.merge(
+    real_estate_long,
+    california_data,
+    on=['year', 'geography'],
+    how='inner'  
+)
+
+# Keep only the first observation per year, geography, and type
+joined_data_unique = joined_data.drop_duplicates(subset=['year', 'geography', 'type'])
+
+joined_data_unique.head()
+
+```
+
+**My argument: there is no relationship between avocado price and house prices**
+
+Support:
+
+```{python}
+#| code-fold: true
+
+#convert price to numeric
+joined_data_unique['price'] = pd.to_numeric(joined_data_unique['price'].str.replace('$', '').str.replace(',', ''))
+
+#create a new column with price in thousands because x axis hard to see before
+joined_data_unique['price_thousands'] = joined_data_unique['price'] / 1000
+
+(ggplot(joined_data_unique, aes(x='price_thousands', y='average_price_single', color='type'))
+ + geom_point(alpha=0.6, size=3)
+ + labs(title='House Prices vs Avocado Prices Across California Cities',
+        x='House Price ($1000s)',
+        y='Avocado Price ($)',
+        color='Type')
+ + theme_minimal())
+```

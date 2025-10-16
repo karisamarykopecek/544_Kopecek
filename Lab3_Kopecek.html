@@ -7,9 +7,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 <meta name="author" content="Karisa Kopecek">
-<meta name="dcterms.date" content="2025-10-16">
+<meta name="dcterms.date" content="2025-10-10">
 
-<title>Titanic Wrangling</title>
+<title>Lab 3</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -2185,7 +2185,7 @@ vertical-align: -.125em;
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<h1 class="title">Titanic Wrangling</h1>
+<h1 class="title">Lab 3</h1>
 </div>
 
 
@@ -2202,7 +2202,7 @@ vertical-align: -.125em;
     <div>
     <div class="quarto-title-meta-heading">Published</div>
     <div class="quarto-title-meta-contents">
-      <p class="date">October 16, 2025</p>
+      <p class="date">October 10, 2025</p>
     </div>
   </div>
   
@@ -2214,19 +2214,19 @@ vertical-align: -.125em;
 </header>
 
 
-<section id="titanic-wrangling" class="level1">
-<h1>Titanic Wrangling</h1>
-<p>In this practice activity you’ll continue to work with the titanic dataset in ways that flex what you’ve learned about both data wrangling and data visualization.</p>
-<div id="cell-2" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;colab&quot;,&quot;value&quot;:{&quot;base_uri&quot;:&quot;https://localhost:8080/&quot;,&quot;height&quot;:206}}" data-outputid="41deeeed-7ce9-4ece-8fff-acb1f3ff5dbc" data-execution_count="1">
-<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Import the titanic dataset here</span></span>
+<section id="data-set-and-importing" class="level2">
+<h2 class="anchored" data-anchor-id="data-set-and-importing">Data Set and Importing</h2>
+<div id="b971fa6a" class="cell" data-execution_count="1">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>data_dir <span class="op">=</span> <span class="st">&quot;https://dlsun.github.io/pods/data/&quot;</span></span>
-<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>df_titanic <span class="op">=</span> pd.read_csv(data_dir <span class="op">+</span> <span class="st">&quot;titanic.csv&quot;</span>)</span>
-<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>df_titanic.head()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-display">
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>xmas <span class="op">=</span> pd.read_csv(<span class="st">&quot;https://www.dropbox.com/scl/fi/qxaslqqp5p08i1650rpc4/xmas.csv?rlkey=erdxi7jbh7pqf9fh4lv4cayp5&amp;dl=1&quot;</span>)</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>xmas.head() <span class="co">#checking if data shows up</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-display" data-execution_count="1">
 <div>
 
 
@@ -2234,135 +2234,59 @@ vertical-align: -.125em;
 <thead>
 <tr class="header">
 <th data-quarto-table-cell-role="th"></th>
-<th data-quarto-table-cell-role="th">name</th>
-<th data-quarto-table-cell-role="th">gender</th>
-<th data-quarto-table-cell-role="th">age</th>
-<th data-quarto-table-cell-role="th">class</th>
-<th data-quarto-table-cell-role="th">embarked</th>
-<th data-quarto-table-cell-role="th">country</th>
-<th data-quarto-table-cell-role="th">ticketno</th>
-<th data-quarto-table-cell-role="th">fare</th>
-<th data-quarto-table-cell-role="th">survived</th>
+<th data-quarto-table-cell-role="th">Day</th>
+<th data-quarto-table-cell-role="th">Day.in.Words</th>
+<th data-quarto-table-cell-role="th">Gift.Item</th>
+<th data-quarto-table-cell-role="th">Verb</th>
+<th data-quarto-table-cell-role="th">Adjective</th>
+<th data-quarto-table-cell-role="th">Location</th>
 </tr>
 </thead>
 <tbody>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">0</td>
-<td>Abbing, Mr. Anthony</td>
-<td>male</td>
-<td>42.0</td>
-<td>3rd</td>
-<td>S</td>
-<td>United States</td>
-<td>5547.0</td>
-<td>7.11</td>
-<td>0</td>
+<td>1</td>
+<td>first</td>
+<td>partridge</td>
+<td>NaN</td>
+<td>NaN</td>
+<td>in a pear tree</td>
 </tr>
 <tr class="even">
 <td data-quarto-table-cell-role="th">1</td>
-<td>Abbott, Mr. Eugene Joseph</td>
-<td>male</td>
-<td>13.0</td>
-<td>3rd</td>
-<td>S</td>
-<td>United States</td>
-<td>2673.0</td>
-<td>20.05</td>
-<td>0</td>
+<td>2</td>
+<td>second</td>
+<td>dove</td>
+<td>NaN</td>
+<td>turtle</td>
+<td>NaN</td>
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">2</td>
-<td>Abbott, Mr. Rossmore Edward</td>
-<td>male</td>
-<td>16.0</td>
-<td>3rd</td>
-<td>S</td>
-<td>United States</td>
-<td>2673.0</td>
-<td>20.05</td>
-<td>0</td>
+<td>3</td>
+<td>third</td>
+<td>hen</td>
+<td>NaN</td>
+<td>french</td>
+<td>NaN</td>
 </tr>
 <tr class="even">
 <td data-quarto-table-cell-role="th">3</td>
-<td>Abbott, Mrs. Rhoda Mary &#39;Rosa&#39;</td>
-<td>female</td>
-<td>39.0</td>
-<td>3rd</td>
-<td>S</td>
-<td>England</td>
-<td>2673.0</td>
-<td>20.05</td>
-<td>1</td>
+<td>4</td>
+<td>fourth</td>
+<td>bird</td>
+<td>NaN</td>
+<td>calling</td>
+<td>NaN</td>
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">4</td>
-<td>Abelseth, Miss. Karen Marie</td>
-<td>female</td>
-<td>16.0</td>
-<td>3rd</td>
-<td>S</td>
-<td>Norway</td>
-<td>348125.0</td>
-<td>7.13</td>
-<td>1</td>
-</tr>
-</tbody>
-</table>
-
-</div>
-</div>
-</div>
-<section id="filter-the-data-to-include-passengers-only.-calculate-the-joint-distribution-cross-tab-between-a-passengers-class-and-where-they-embarked." class="level2">
-<h2 class="anchored" data-anchor-id="filter-the-data-to-include-passengers-only.-calculate-the-joint-distribution-cross-tab-between-a-passengers-class-and-where-they-embarked.">1. Filter the data to include passengers only. Calculate the joint distribution (cross-tab) between a passenger’s class and where they embarked.</h2>
-<div id="cell-4" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;colab&quot;,&quot;value&quot;:{&quot;base_uri&quot;:&quot;https://localhost:8080/&quot;,&quot;height&quot;:175}}" data-outputid="33b6516a-2762-4b8b-e170-1530d0ff6461" data-execution_count="2">
-<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Code here</span></span>
-<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>df_pass <span class="op">=</span> df_titanic[df_titanic[<span class="st">&quot;class&quot;</span>].isin([<span class="st">&quot;1st&quot;</span>, <span class="st">&quot;2nd&quot;</span>, <span class="st">&quot;3rd&quot;</span>])]</span>
-<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>cross_tab <span class="op">=</span> pd.crosstab(df_pass[<span class="st">&quot;class&quot;</span>], df_pass[<span class="st">&quot;embarked&quot;</span>])</span>
-<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>cross_tab</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-display">
-<div>
-
-
-<table class="dataframe caption-top table table-sm table-striped small" data-quarto-postprocess="true" data-border="1">
-<thead>
-<tr class="header">
-<th data-quarto-table-cell-role="th">embarked</th>
-<th data-quarto-table-cell-role="th">B</th>
-<th data-quarto-table-cell-role="th">C</th>
-<th data-quarto-table-cell-role="th">Q</th>
-<th data-quarto-table-cell-role="th">S</th>
-</tr>
-<tr class="even">
-<th data-quarto-table-cell-role="th">class</th>
-<th data-quarto-table-cell-role="th"></th>
-<th data-quarto-table-cell-role="th"></th>
-<th data-quarto-table-cell-role="th"></th>
-<th data-quarto-table-cell-role="th"></th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td data-quarto-table-cell-role="th">1st</td>
-<td>3</td>
-<td>143</td>
-<td>3</td>
-<td>175</td>
-</tr>
-<tr class="even">
-<td data-quarto-table-cell-role="th">2nd</td>
-<td>6</td>
-<td>26</td>
-<td>7</td>
-<td>245</td>
-</tr>
-<tr class="odd">
-<td data-quarto-table-cell-role="th">3rd</td>
-<td>0</td>
-<td>102</td>
-<td>113</td>
-<td>494</td>
+<td>5</td>
+<td>fifth</td>
+<td>ring</td>
+<td>NaN</td>
+<td>golden</td>
+<td>NaN</td>
 </tr>
 </tbody>
 </table>
@@ -2371,67 +2295,101 @@ vertical-align: -.125em;
 </div>
 </div>
 </section>
-<section id="using-the-joint-distribution-that-calculated-above-calculate-the-following" class="level2">
-<h2 class="anchored" data-anchor-id="using-the-joint-distribution-that-calculated-above-calculate-the-following">2. Using the joint distribution that calculated above, calculate the following:</h2>
-<ul>
-<li>the conditional distribution of their class given where they embarked</li>
-<li>the conditional distribution of where they embarked given their class</li>
-</ul>
-<p>Use the conditional distributions that you calculate to answer the following quesitons:</p>
-<ul>
-<li>What proportion of 3rd class passengers embarked at Southampton?</li>
-<li>What proportion of Southampton passengers were in 3rd class?</li>
-</ul>
-<div id="cell-6" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;colab&quot;,&quot;value&quot;:{&quot;base_uri&quot;:&quot;https://localhost:8080/&quot;,&quot;height&quot;:175}}" data-outputid="65b3e4f5-c04f-470e-e53c-dd4fb26fa446" data-execution_count="3">
-<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Code here</span></span>
-<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="co"># Conditional distribution of class given embarkation port</span></span>
-<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="co"># P(Class | Embarked) - normalize by columns</span></span>
-<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="co">#index based on second one beibng embarked which is a column</span></span>
-<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>cond_class_given_embarked <span class="op">=</span> pd.crosstab(df_pass[<span class="st">&quot;class&quot;</span>], df_pass[<span class="st">&quot;embarked&quot;</span>], normalize<span class="op">=</span><span class="st">&quot;columns&quot;</span>)</span>
-<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>cond_class_given_embarked</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-display">
+<section id="function-1-pluralize_gift" class="level1">
+<h1>Function 1: pluralize_gift()</h1>
+<div id="8dda646a" class="cell" data-execution_count="2">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> pluralize_gift(gift):</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>    <span class="co">&quot;&quot;&quot;</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="co">    Returns plural of a noun</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="co">    </span></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a><span class="co">    Parameters</span></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a><span class="co">    ----------</span></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a><span class="co">    gift: str</span></span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a><span class="co">        A noun</span></span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a><span class="co">    </span></span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a><span class="co">    Return</span></span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a><span class="co">    ------</span></span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a><span class="co">    str</span></span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a><span class="co">        Plural version</span></span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a><span class="co">    &quot;&quot;&quot;</span></span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a> <span class="co">#goose to geese</span></span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> gift.find(<span class="st">&quot;oo&quot;</span>) <span class="op">!=</span> <span class="op">-</span><span class="dv">1</span>:</span>
+<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a>        gift <span class="op">=</span> gift.replace(<span class="st">&quot;oo&quot;</span>, <span class="st">&quot;ee&quot;</span>)</span>
+<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a> <span class="co"># words ending in y (lady to ladies)</span></span>
+<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a>    <span class="cf">elif</span> gift[<span class="op">-</span><span class="dv">1</span>] <span class="op">==</span> <span class="st">&quot;y&quot;</span>:</span>
+<span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a>        gift <span class="op">=</span> gift.replace(<span class="st">&quot;y&quot;</span>, <span class="st">&quot;ies&quot;</span>)</span>
+<span id="cb2-22"><a href="#cb2-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-23"><a href="#cb2-23" aria-hidden="true" tabindex="-1"></a> <span class="co"># add s (ring to rings)</span></span>
+<span id="cb2-24"><a href="#cb2-24" aria-hidden="true" tabindex="-1"></a>    <span class="cf">else</span>:</span>
+<span id="cb2-25"><a href="#cb2-25" aria-hidden="true" tabindex="-1"></a>        gift <span class="op">=</span> gift <span class="op">+</span> <span class="st">&quot;s&quot;</span></span>
+<span id="cb2-26"><a href="#cb2-26" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb2-27"><a href="#cb2-27" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> gift</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<section id="test-your-function" class="level2">
+<h2 class="anchored" data-anchor-id="test-your-function">Test your Function</h2>
+<div id="e4ca16da" class="cell" data-execution_count="3">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Should work given in lab, unit test</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>pluralize_gift(<span class="st">&quot;goose&quot;</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-display" data-execution_count="3">
+<pre><code>&#39;geese&#39;</code></pre>
+</div>
+</div>
+<div id="abd17147" class="cell" data-execution_count="4">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Will work if your function is vectorized! (our function is not vectorized so the following won&#39;t work)</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="co">#pluralize_gift(xmas[&#39;Gift.Item&#39;])</span></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a><span class="co">#instead, use the following to apply to entire column</span></span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>xmas[<span class="st">&#39;Gift.Plural&#39;</span>] <span class="op">=</span> xmas[<span class="st">&quot;Gift.Item&quot;</span>].<span class="bu">apply</span>(pluralize_gift)</span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a><span class="co">#results</span></span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>xmas[[<span class="st">&#39;Gift.Plural&#39;</span>, <span class="st">&#39;Gift.Item&#39;</span>]].head()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-display" data-execution_count="4">
 <div>
 
 
 <table class="dataframe caption-top table table-sm table-striped small" data-quarto-postprocess="true" data-border="1">
 <thead>
 <tr class="header">
-<th data-quarto-table-cell-role="th">embarked</th>
-<th data-quarto-table-cell-role="th">B</th>
-<th data-quarto-table-cell-role="th">C</th>
-<th data-quarto-table-cell-role="th">Q</th>
-<th data-quarto-table-cell-role="th">S</th>
-</tr>
-<tr class="even">
-<th data-quarto-table-cell-role="th">class</th>
 <th data-quarto-table-cell-role="th"></th>
-<th data-quarto-table-cell-role="th"></th>
-<th data-quarto-table-cell-role="th"></th>
-<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">Gift.Plural</th>
+<th data-quarto-table-cell-role="th">Gift.Item</th>
 </tr>
 </thead>
 <tbody>
 <tr class="odd">
-<td data-quarto-table-cell-role="th">1st</td>
-<td>0.333333</td>
-<td>0.527675</td>
-<td>0.024390</td>
-<td>0.191466</td>
+<td data-quarto-table-cell-role="th">0</td>
+<td>partridges</td>
+<td>partridge</td>
 </tr>
 <tr class="even">
-<td data-quarto-table-cell-role="th">2nd</td>
-<td>0.666667</td>
-<td>0.095941</td>
-<td>0.056911</td>
-<td>0.268053</td>
+<td data-quarto-table-cell-role="th">1</td>
+<td>doves</td>
+<td>dove</td>
 </tr>
 <tr class="odd">
-<td data-quarto-table-cell-role="th">3rd</td>
-<td>0.000000</td>
-<td>0.376384</td>
-<td>0.918699</td>
-<td>0.540481</td>
+<td data-quarto-table-cell-role="th">2</td>
+<td>hens</td>
+<td>hen</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">3</td>
+<td>birds</td>
+<td>bird</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">4</td>
+<td>rings</td>
+<td>ring</td>
 </tr>
 </tbody>
 </table>
@@ -2439,95 +2397,453 @@ vertical-align: -.125em;
 </div>
 </div>
 </div>
-<div id="cell-7" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;colab&quot;,&quot;value&quot;:{&quot;base_uri&quot;:&quot;https://localhost:8080/&quot;,&quot;height&quot;:175}}" data-outputid="f14cbfc9-b55b-4f77-e9c0-bfad4bcaf660" data-execution_count="4">
-<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Conditional distribution of embarkation port given class</span></span>
-<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="co"># P(Embarked | Class) - normalize by rows</span></span>
-<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>cond_embarked_given_class <span class="op">=</span> pd.crosstab(df_pass[<span class="st">&quot;class&quot;</span>], df_pass[<span class="st">&quot;embarked&quot;</span>], normalize<span class="op">=</span><span class="st">&quot;index&quot;</span>)</span>
-<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>cond_embarked_given_class</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-display">
-<div>
-
-
-<table class="dataframe caption-top table table-sm table-striped small" data-quarto-postprocess="true" data-border="1">
-<thead>
-<tr class="header">
-<th data-quarto-table-cell-role="th">embarked</th>
-<th data-quarto-table-cell-role="th">B</th>
-<th data-quarto-table-cell-role="th">C</th>
-<th data-quarto-table-cell-role="th">Q</th>
-<th data-quarto-table-cell-role="th">S</th>
-</tr>
-<tr class="even">
-<th data-quarto-table-cell-role="th">class</th>
-<th data-quarto-table-cell-role="th"></th>
-<th data-quarto-table-cell-role="th"></th>
-<th data-quarto-table-cell-role="th"></th>
-<th data-quarto-table-cell-role="th"></th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td data-quarto-table-cell-role="th">1st</td>
-<td>0.009259</td>
-<td>0.441358</td>
-<td>0.009259</td>
-<td>0.540123</td>
-</tr>
-<tr class="even">
-<td data-quarto-table-cell-role="th">2nd</td>
-<td>0.021127</td>
-<td>0.091549</td>
-<td>0.024648</td>
-<td>0.862676</td>
-</tr>
-<tr class="odd">
-<td data-quarto-table-cell-role="th">3rd</td>
-<td>0.000000</td>
-<td>0.143865</td>
-<td>0.159379</td>
-<td>0.696756</td>
-</tr>
-</tbody>
-</table>
-
+</section>
+</section>
+<section id="function-2-make_phrase" class="level1">
+<h1>Function 2: make_phrase()</h1>
+<div id="28c2d453" class="cell" data-execution_count="5">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> make_phrase(num, num_word, item, verb, adjective, location):</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>    <span class="co">&quot;&quot;&quot;</span></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a><span class="co">    Creates a phrase for a given gift </span></span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a><span class="co">    </span></span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a><span class="co">    Parameters</span></span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a><span class="co">    ----------</span></span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a><span class="co">    num : int</span></span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a><span class="co">        the day number</span></span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a><span class="co">    num_word : str</span></span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a><span class="co">        the word version of the number </span></span>
+<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a><span class="co">    item : str</span></span>
+<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a><span class="co">        the gift item (as is)</span></span>
+<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a><span class="co">    verb : str or pd.Series (has issues with errors so made it work with str or pd.Series just in case)</span></span>
+<span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a><span class="co">        the verb associated with the gift</span></span>
+<span id="cb6-15"><a href="#cb6-15" aria-hidden="true" tabindex="-1"></a><span class="co">    adjective : str or pd.Series</span></span>
+<span id="cb6-16"><a href="#cb6-16" aria-hidden="true" tabindex="-1"></a><span class="co">        adjective for the gift</span></span>
+<span id="cb6-17"><a href="#cb6-17" aria-hidden="true" tabindex="-1"></a><span class="co">    location : str or pd.Series</span></span>
+<span id="cb6-18"><a href="#cb6-18" aria-hidden="true" tabindex="-1"></a><span class="co">        location associated with the gift</span></span>
+<span id="cb6-19"><a href="#cb6-19" aria-hidden="true" tabindex="-1"></a><span class="co">    </span></span>
+<span id="cb6-20"><a href="#cb6-20" aria-hidden="true" tabindex="-1"></a><span class="co">    Returns</span></span>
+<span id="cb6-21"><a href="#cb6-21" aria-hidden="true" tabindex="-1"></a><span class="co">    -------</span></span>
+<span id="cb6-22"><a href="#cb6-22" aria-hidden="true" tabindex="-1"></a><span class="co">    str</span></span>
+<span id="cb6-23"><a href="#cb6-23" aria-hidden="true" tabindex="-1"></a><span class="co">        A phrase for the gift</span></span>
+<span id="cb6-24"><a href="#cb6-24" aria-hidden="true" tabindex="-1"></a><span class="co">    &quot;&quot;&quot;</span></span>
+<span id="cb6-25"><a href="#cb6-25" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb6-26"><a href="#cb6-26" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Step 1: Replace NAs with blank strings</span></span>
+<span id="cb6-27"><a href="#cb6-27" aria-hidden="true" tabindex="-1"></a>    <span class="co">#isinstance() returns True if verb is a Series, False otherwise</span></span>
+<span id="cb6-28"><a href="#cb6-28" aria-hidden="true" tabindex="-1"></a>    <span class="co">#pd.Series([&quot;a-leaping&quot;]) becomes just &quot;a-leaping&quot; in the verb line</span></span>
+<span id="cb6-29"><a href="#cb6-29" aria-hidden="true" tabindex="-1"></a>    <span class="co">#Replaces the NaN with an empty string &quot;&quot;</span></span>
+<span id="cb6-30"><a href="#cb6-30" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="bu">isinstance</span>(verb, pd.Series):</span>
+<span id="cb6-31"><a href="#cb6-31" aria-hidden="true" tabindex="-1"></a>        verb <span class="op">=</span> verb.values[<span class="dv">0</span>]</span>
+<span id="cb6-32"><a href="#cb6-32" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> pd.isna(verb):</span>
+<span id="cb6-33"><a href="#cb6-33" aria-hidden="true" tabindex="-1"></a>        verb <span class="op">=</span> <span class="st">&quot;&quot;</span></span>
+<span id="cb6-34"><a href="#cb6-34" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb6-35"><a href="#cb6-35" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="bu">isinstance</span>(adjective, pd.Series):</span>
+<span id="cb6-36"><a href="#cb6-36" aria-hidden="true" tabindex="-1"></a>        adjective <span class="op">=</span> adjective.values[<span class="dv">0</span>]</span>
+<span id="cb6-37"><a href="#cb6-37" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> pd.isna(adjective):</span>
+<span id="cb6-38"><a href="#cb6-38" aria-hidden="true" tabindex="-1"></a>        adjective <span class="op">=</span> <span class="st">&quot;&quot;</span></span>
+<span id="cb6-39"><a href="#cb6-39" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb6-40"><a href="#cb6-40" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="bu">isinstance</span>(location, pd.Series):</span>
+<span id="cb6-41"><a href="#cb6-41" aria-hidden="true" tabindex="-1"></a>        location <span class="op">=</span> location.values[<span class="dv">0</span>]</span>
+<span id="cb6-42"><a href="#cb6-42" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> pd.isna(location):</span>
+<span id="cb6-43"><a href="#cb6-43" aria-hidden="true" tabindex="-1"></a>        location <span class="op">=</span> <span class="st">&quot;&quot;</span></span>
+<span id="cb6-44"><a href="#cb6-44" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb6-45"><a href="#cb6-45" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Step 2: If the day number is larger than 1, the gift items need to be pluralized</span></span>
+<span id="cb6-46"><a href="#cb6-46" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> num <span class="op">&gt;</span> <span class="dv">1</span>:</span>
+<span id="cb6-47"><a href="#cb6-47" aria-hidden="true" tabindex="-1"></a>        item <span class="op">=</span> pluralize_gift(item)</span>
+<span id="cb6-48"><a href="#cb6-48" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb6-49"><a href="#cb6-49" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Step 3: Figure out if a gift item starts with a vowel</span></span>
+<span id="cb6-50"><a href="#cb6-50" aria-hidden="true" tabindex="-1"></a>    starts_with_vowel <span class="op">=</span> item[<span class="dv">0</span>].lower() <span class="kw">in</span> [<span class="st">&#39;a&#39;</span>, <span class="st">&#39;e&#39;</span>, <span class="st">&#39;i&#39;</span>, <span class="st">&#39;o&#39;</span>, <span class="st">&#39;u&#39;</span>]</span>
+<span id="cb6-51"><a href="#cb6-51" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb6-52"><a href="#cb6-52" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Step 4: For the first day, replace with &quot;a&quot; or &quot;an&quot;</span></span>
+<span id="cb6-53"><a href="#cb6-53" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> num <span class="op">==</span> <span class="dv">1</span>:</span>
+<span id="cb6-54"><a href="#cb6-54" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> starts_with_vowel:</span>
+<span id="cb6-55"><a href="#cb6-55" aria-hidden="true" tabindex="-1"></a>            num_word <span class="op">=</span> <span class="st">&quot;an&quot;</span></span>
+<span id="cb6-56"><a href="#cb6-56" aria-hidden="true" tabindex="-1"></a>        <span class="cf">else</span>:</span>
+<span id="cb6-57"><a href="#cb6-57" aria-hidden="true" tabindex="-1"></a>            num_word <span class="op">=</span> <span class="st">&quot;a&quot;</span></span>
+<span id="cb6-58"><a href="#cb6-58" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb6-59"><a href="#cb6-59" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Step 5: Put all of the pieces together into one string and return!</span></span>
+<span id="cb6-60"><a href="#cb6-60" aria-hidden="true" tabindex="-1"></a>    phrase <span class="op">=</span> num_word</span>
+<span id="cb6-61"><a href="#cb6-61" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb6-62"><a href="#cb6-62" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> adjective <span class="op">!=</span> <span class="st">&quot;&quot;</span>:</span>
+<span id="cb6-63"><a href="#cb6-63" aria-hidden="true" tabindex="-1"></a>        phrase <span class="op">=</span> phrase <span class="op">+</span> <span class="st">&quot; &quot;</span> <span class="op">+</span> adjective</span>
+<span id="cb6-64"><a href="#cb6-64" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb6-65"><a href="#cb6-65" aria-hidden="true" tabindex="-1"></a>    phrase <span class="op">=</span> phrase <span class="op">+</span> <span class="st">&quot; &quot;</span> <span class="op">+</span> item</span>
+<span id="cb6-66"><a href="#cb6-66" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb6-67"><a href="#cb6-67" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> verb <span class="op">!=</span> <span class="st">&quot;&quot;</span>:</span>
+<span id="cb6-68"><a href="#cb6-68" aria-hidden="true" tabindex="-1"></a>        phrase <span class="op">=</span> phrase <span class="op">+</span> <span class="st">&quot; &quot;</span> <span class="op">+</span> verb</span>
+<span id="cb6-69"><a href="#cb6-69" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb6-70"><a href="#cb6-70" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> location <span class="op">!=</span> <span class="st">&quot;&quot;</span>:</span>
+<span id="cb6-71"><a href="#cb6-71" aria-hidden="true" tabindex="-1"></a>        phrase <span class="op">=</span> phrase <span class="op">+</span> <span class="st">&quot; &quot;</span> <span class="op">+</span> location</span>
+<span id="cb6-72"><a href="#cb6-72" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb6-73"><a href="#cb6-73" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> phrase</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<section id="test-your-function-1" class="level2">
+<h2 class="anchored" data-anchor-id="test-your-function-1">Test your Function</h2>
+<div id="d85ce7ab" class="cell" data-execution_count="6">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="co">#unit tests</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a><span class="co">#given from notes on lab itself</span></span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>make_phrase(num<span class="op">=</span><span class="dv">10</span>, </span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>            num_word<span class="op">=</span><span class="st">&quot;ten&quot;</span>, </span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>            item<span class="op">=</span><span class="st">&quot;lord&quot;</span>, </span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>            verb<span class="op">=</span><span class="st">&quot;a-leaping&quot;</span>, </span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>            adjective<span class="op">=</span><span class="st">&quot;&quot;</span>, </span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a>            location<span class="op">=</span><span class="st">&quot;&quot;</span>)</span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a><span class="co"># Should return: &quot;ten lords a-leaping&quot;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-display" data-execution_count="6">
+<pre><code>&#39;ten lords a-leaping&#39;</code></pre>
 </div>
 </div>
+<div id="004acd4c" class="cell" data-execution_count="7">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Test 2: with &quot;a&quot; </span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>make_phrase(num<span class="op">=</span><span class="dv">1</span>, </span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>            num_word<span class="op">=</span><span class="st">&quot;first&quot;</span>, </span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>            item<span class="op">=</span><span class="st">&quot;partridge&quot;</span>, </span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>            verb<span class="op">=</span><span class="st">&quot;&quot;</span>, </span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>            adjective<span class="op">=</span><span class="st">&quot;&quot;</span>, </span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>            location<span class="op">=</span><span class="st">&quot;in a pear tree&quot;</span>)</span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a><span class="co"># Should return: &quot;a partridge in a pear tree&quot;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-display" data-execution_count="7">
+<pre><code>&#39;a partridge in a pear tree&#39;</code></pre>
 </div>
-<div id="cell-8" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;colab&quot;,&quot;value&quot;:{&quot;base_uri&quot;:&quot;https://localhost:8080/&quot;}}" data-outputid="37720360-3b86-471c-8c13-38e16e1e0bed" data-execution_count="5">
-<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Answer the questions:</span></span>
-<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="co"># What proportion of 3rd class passengers embarked at Southampton?</span></span>
-<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>prop_3rd_southampton <span class="op">=</span> cond_embarked_given_class.loc[<span class="st">&quot;3rd&quot;</span>, <span class="st">&quot;S&quot;</span>]</span>
-<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a><span class="co"># What proportion of Southampton passengers were in 3rd class?</span></span>
-<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>prop_southampton_3rd <span class="op">=</span> cond_class_given_embarked.loc[<span class="st">&quot;3rd&quot;</span>, <span class="st">&quot;S&quot;</span>]</span>
-<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>prop_3rd_southampton, prop_southampton_3rd</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-display">
-<pre><code>(np.float64(0.6967559943582511), np.float64(0.5404814004376368))</code></pre>
+</div>
+<div id="f047ed10" class="cell" data-execution_count="8">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Test 3: Phrase with adjective and rings</span></span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>make_phrase(num<span class="op">=</span><span class="dv">5</span>, </span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>            num_word<span class="op">=</span><span class="st">&quot;five&quot;</span>, </span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>            item<span class="op">=</span><span class="st">&quot;ring&quot;</span>, </span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a>            verb<span class="op">=</span><span class="st">&quot;&quot;</span>, </span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a>            adjective<span class="op">=</span><span class="st">&quot;golden&quot;</span>, </span>
+<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a>            location<span class="op">=</span><span class="st">&quot;&quot;</span>)</span>
+<span id="cb11-8"><a href="#cb11-8" aria-hidden="true" tabindex="-1"></a>            </span>
+<span id="cb11-9"><a href="#cb11-9" aria-hidden="true" tabindex="-1"></a><span class="co"># Should return: &quot;five golden rings&quot;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-display" data-execution_count="8">
+<pre><code>&#39;five golden rings&#39;</code></pre>
 </div>
 </div>
 </section>
-<section id="make-a-visualization-showing-the-distribution-of-a-passengers-class-given-where-they-embarked." class="level2">
-<h2 class="anchored" data-anchor-id="make-a-visualization-showing-the-distribution-of-a-passengers-class-given-where-they-embarked.">3. Make a visualization showing the distribution of a passenger’s class, given where they embarked.</h2>
-<p>Discuss the pros and cons of using this visualization versus the distributions you calculated before, to answer the previous questions.</p>
-<div id="cell-10" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;colab&quot;,&quot;value&quot;:{&quot;base_uri&quot;:&quot;https://localhost:8080/&quot;,&quot;height&quot;:497}}" data-outputid="5002cf28-8cc5-48fe-bae9-3a2af4dcc84c" data-execution_count="6">
-<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Code here</span></span>
-<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> plotnine <span class="im">import</span> geom_bar, ggplot, aes</span>
-<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>(ggplot(df_pass, aes(x<span class="op">=</span><span class="st">&quot;embarked&quot;</span>, fill<span class="op">=</span><span class="st">&quot;class&quot;</span>))</span>
-<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a> <span class="op">+</span> geom_bar(position<span class="op">=</span><span class="st">&quot;fill&quot;</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-display">
-<div>
-<figure class="figure">
-<p><img role="img" src="data:image/png;base64,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smSJ9uzZI5vNVul9KNPS0jRnzhy1bdtWkrRv3z4tW7ZMBQUFF3wfytLSUiUmJuqBBx646PtQOhyO2ju5eiwwMFAREREqLCzk1oqfobf+jf76L3p7Yb99nA2e5/OB0tsIlNXjB5f/orf+jf76L3p7YQTK2uXTt7wBAADg+wiUAAAAMEKgBAAAgBECJQAAAIwQKAEAAGCEQAkAAAAjBEoAAAAYIVACAADACIESAAAARgiUAAAAMEKgBAAAgBECJQAAAIxYXC6Xy9tFoP5xOBxav369Bg4cqMjISG+XAw+it/6N/vovegtv4golLovD4dCKFSvkcDi8XQo8jN76N/rrv+gtvIlACQAAACMESgAAABghUOKyREZGKj09ned0/BC99W/013/RW3gTL8oBAACAEa5QAgAAwAiBEgAAAEYIlAAAADAS5O0CUL/MnDlTX3/9tQIDA2WxWBQdHa177rlHN9xwg7dLg4fs2LFDmzZtUn5+vkJCQtSiRQv1799ft9xyi7dLA3AeX331lV599VXl5eVJkpo3b65hw4bppptu8nJluFIQKFFj9957r+644w5VVFRoy5YtWrBggV577TUFBfHPqb5766239MYbb+i+++5Tp06dFBISov379+vDDz8kUNZzH3zwgTZt2qRjx44pNDRUN910k0aNGqWIiAhvlwZDpaWlmjdvnu69916lpKTo3LlzOnjwoAICuAmJusO/Nly2gIAApaSkqKSkRIWFhd4uB4ZKS0v1+uuva8KECerWrZtsNpsCAwPVoUMHPfjgg94uDwbeeustvfzyyxo2bJhWr16t5557Tk6nU9OmTVNJSYm3y4OhY8eOyel0qkePHgoMDFRISIjatWuntm3bers0XEEIlLhsTqdT2dnZuuqqq9SkSRNvlwNDX331lc6cOaMuXbp4uxR4UGlpqbKysjRu3Dh17txZwcHBatq0qSZPnqygoCC9/fbb3i4RhqKjoxUcHKxnnnlGu3fv1s8//+ztknAF4h4lauwvf/mLVq1apdOnTysgIECTJ09WYGCgt8uCoeLiYoWFhfHogp85cOCATp8+raSkpErrAwMDlZSUpD179mjIkCFeqg6eYLPZtHDhQm3YsEHLli3Tjz/+qLZt22rSpElq3ry5t8vDFYLfHKixsWPHup+hPHDggObNm6drrrlGrVq18nZpMNCoUSMVFRXp3LlzhEo/UlRUdN7/UYiIiFBRUZEXqoKntWjRQg899JAkqaCgQJmZmXr22Wf11FNPebkyXCm45Y3LFhAQoDZt2igqKkr79u3zdjkwdP3116tBgwb6+OOPvV0KPCgsLMz9Pwr/rLCwUGFhYV6oCrWpWbNm6tu3r/sV30BdIFDCyIEDB3TkyBHFxsZ6uxQYstlsGjFihJYvX66cnByVlZXJ6XRq//79WrJkibfLw2W67rrr1KBBA+3cubPS+oqKCu3cuVPt27f3UmXwlKNHj2rDhg364Ycf5HK5dPLkSW3evFmtW7f2dmm4gnBfCzX28ssva+XKlZKk8PBwjRgxQomJiV6uCp7Qr18/NWnSRBs3btTixYsVGhqq2NhY9e/f39ul4TLZbDYNGzZML730kqxWqzp27KiioiK9+uqrKikpUZ8+fbxdIgxZrVYdOnRIb7/9tkpKSmSz2dSuXTvdd9993i4NVxCLy+VyebsIAEDt2rZtmzZt2qTjx4/rzJkzuvbaazV16lRFR0d7uzQAfoArlABwBUhNTVVqaqok6ZNPPtHzzz+vM2fOeLkqAP6CK5QAcAX6+OOPVVhYqDvuuMPbpQDwAwRKAAAAGOFV3gAAADBCoAQAAIARAiUAAACMECgBAABghEAJAAAAIwRKAAAAGCFQAvAb27dvl8Vi0WeffVarx0lJSVHfvn1rZe4333xTFotFhw8frpX5AaA2ECgBAABghEAJAJeorKzM2yUAgE8iUAKoc7t27VJqaqrsdrsaN26sYcOG6fvvv5ckHT58WBaLRatWrVJ6errCw8N11VVX6emnn5YkrVmzRq1bt1ZYWJgGDBigkydPVpn/+++/14ABA2S329W8eXM98cQTlbYfOHBAQ4YMUYsWLWSz2dSmTRs988wzqqiocI/5tY5XXnlF6enpatq0qW6++eZqz6e8vFx33nmn4uPjdejQIUnS0aNHNWLECEVGRspqtep3v/udPv/880r7nT17VpMnT1aTJk3UuHFjjR07ViUlJZf99woA3kKgBFCndu3apZSUFDVu3FhvvPGGXnrpJe3evVv9+vWrNC4jI0NhYWFat26d0tLS9Oijj2r69Ol67rnn9NRTT2np0qXatm2bpk6dWuUY48aNU8uWLbVhwwaNGDFCs2bN0rJly9zbjx07ptatWyszM1N/+9vfNG7cOM2bN0/z58+vMteMGTNksVi0evVqLVq0qMr2U6dOqU+fPjp48KA++ugjtWrVSoWFherWrZv+8Y9/6IUXXtD69etlt9uVmprqDs6/zp2ZmalHH31Ua9eu1blz5zRr1iyTv14A8A4XANSh3/3ud66uXbu6Kioq3Ov279/vslgsrnfffdeVm5vrkuQaPHiwe/u5c+dczZo1c9ntdpfD4XCvnzJliis8PNy9/MEHH7gkuUaOHFnpmCNGjHDFxMS4nE5nlXoqKipcZ8+edS1YsMDVvHlz9/pf6+jdu3eVfZKTk119+vRxFRYWum699VZX+/btXQUFBe7ts2fPdjVu3LjSuvLycldMTIzr0UcfdblcLtePP/7oslqtrscee6zS3F27dnVJcuXm5p737xAAfA1XKAHUmdLSUuXk5OgPf/iDnE6nzp07p3Pnzql169Zq3ry5du/e7R7bs2dP99eBgYFKSEhQx44d1bRpU/f6f/3Xf9XJkyd16tSpSse56667Ki0PGDBAR48e1dGjRyX9cot6zpw5atWqlUJCQhQcHKxZs2bpxIkTVebq3bt3teficDiUkpIil8ul7du36+qrr3Zv27x5s7p3764mTZq4zzEwMFC33Xab+xz37dunsrKyKrUOHDjwon+PAOBrCJQA6kxhYaGcTqcefvhhBQcHV/pz/PhxHTlyxD02PDy80r4NGjSodp30S0D8rd+Gu98unzhxQpI0bdo0LVq0SOnp6frb3/6m3bt3KyMj45Lm+tXBgwf13//93xo6dKgiIiIqbXM4HNq0aVOVc1y9erX7HH+t5Z/nb9asWbXHAwBfFuTtAgBcOcLDw2WxWDRz5kz179+/yvbIyEiPHOe3zyn+drl58+aSpHXr1mn8+PGaNm2ae8y7775b7VwWi6Xa9V27dlXPnj31yCOPqEmTJho5cqR7W5MmTfTv//7v+tOf/lRlv5CQkEq1fP/994qOjnZvLygouOj5AYCvIVACqDN2u11dunTRV199Ve0LYCR55A29N27cWOlW8oYNGxQVFaWYmBhJv7z9z69XNyXJ6XRqzZo1NT7O5MmTVVZWpjFjxigkJERpaWmSfrld//rrr+v666+X3W6vdt927drJarVq48aNuvHGG93r169fX+M6AMDbCJQA6tSiRYuUmpqqwYMHa8iQIYqIiNDRo0e1ZcsWjRkzRvHx8cbH2LZtmx599FHdfvvt2rJli15//XUtXbpUAQG/POVz++23a8WKFWrTpo2uuuoqLV26VKdPn76sY82YMUNlZWUaMWKEQkND1a9fPz3yyCPKyspScnKyHnroIcXGxuqHH37QJ598oqioKD388MNq0qSJJkyYoIULF8pqtapTp076z//8T+Xl5RmfPwDUNZ6hBFCnunbtqh07dujUqVMaM2aMevfurXnz5slms6lVq1YeOcby5cv19ddf66677tJrr72mP/3pT5o4caJ7+wsvvKDk5GQ98MADuueee9SuXTvNnDnzso83b948PfTQQ0pLS9P777+vpk2b6uOPP1bHjh01bdo09erVSw8//LAOHz6szp07u/dbuHChJkyYoKeeekppaWmyWCznvXILAL7M4nK5XN4uAgAAAPUXVygBAABghEAJAAAAIwRKAAAAGCFQAgAAwAiBEgAAAEYIlAAAADBCoAQAAIARAiUAAACMECgBAABghEAJAAAAIwRKAAAAGCFQAgAAwAiBEgAAAEYIlAAAADBCoAQAAIARAiUAAACMECgBAABg5P8Cj9tZINatTnoAAAAASUVORK5CYII=" class="img-fluid figure-img"></p>
-</figure>
-</div>
-</div>
-</div>
-<p>Pros: The stacked bar chart provides an immediate visual comparison of the embarkation port distributions across all three classes simultaneously. It is easier to see patterns in the visualization like how Southampton dominated 3rd class.</p>
-<p>Cons: Reading exact proportions from the visualization is difficult compared to the numerical tables. I can easily see the numbers in the tables.</p>
 </section>
+<section id="function-3-sing_day" class="level1">
+<h1>Function 3: sing_day()</h1>
+<div id="000ac0bf" class="cell" data-execution_count="9">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> sing_day(dataset, num, phrase_col):</span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>    <span class="co">&quot;&quot;&quot;</span></span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a><span class="co">    Sings a verse for a given day (including past phrases)</span></span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a><span class="co">    </span></span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a><span class="co">    Parameters</span></span>
+<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a><span class="co">    ----------</span></span>
+<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a><span class="co">    dataset : pd.DataFrame</span></span>
+<span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a><span class="co">        A dataframe containing the gift information for the song (columns: &#39;Day&#39;, &#39;Gift.Item&#39;, &#39;Verb&#39;, etc.)</span></span>
+<span id="cb13-9"><a href="#cb13-9" aria-hidden="true" tabindex="-1"></a><span class="co">    num : int</span></span>
+<span id="cb13-10"><a href="#cb13-10" aria-hidden="true" tabindex="-1"></a><span class="co">        The day number to sing about</span></span>
+<span id="cb13-11"><a href="#cb13-11" aria-hidden="true" tabindex="-1"></a><span class="co">    phrase_col : str</span></span>
+<span id="cb13-12"><a href="#cb13-12" aria-hidden="true" tabindex="-1"></a><span class="co">        The name of the column with gift phrases, if this column isn&#39;t created yet, the function should</span></span>
+<span id="cb13-13"><a href="#cb13-13" aria-hidden="true" tabindex="-1"></a><span class="co">        compute phrases using make_phrase() and then make this column.</span></span>
+<span id="cb13-14"><a href="#cb13-14" aria-hidden="true" tabindex="-1"></a><span class="co">    </span></span>
+<span id="cb13-15"><a href="#cb13-15" aria-hidden="true" tabindex="-1"></a><span class="co">    Returns</span></span>
+<span id="cb13-16"><a href="#cb13-16" aria-hidden="true" tabindex="-1"></a><span class="co">    -------</span></span>
+<span id="cb13-17"><a href="#cb13-17" aria-hidden="true" tabindex="-1"></a><span class="co">    str</span></span>
+<span id="cb13-18"><a href="#cb13-18" aria-hidden="true" tabindex="-1"></a><span class="co">        A string containing the complete verse for the specified day (all the way down to day 1)</span></span>
+<span id="cb13-19"><a href="#cb13-19" aria-hidden="true" tabindex="-1"></a><span class="co">    &quot;&quot;&quot;</span></span>
+<span id="cb13-20"><a href="#cb13-20" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Step 1: Setup the intro line</span></span>
+<span id="cb13-21"><a href="#cb13-21" aria-hidden="true" tabindex="-1"></a>    num_to_word <span class="op">=</span> {<span class="dv">1</span>: <span class="st">&quot;first&quot;</span>, <span class="dv">2</span>: <span class="st">&quot;second&quot;</span>, <span class="dv">3</span>: <span class="st">&quot;third&quot;</span>, <span class="dv">4</span>: <span class="st">&quot;fourth&quot;</span>, <span class="dv">5</span>: <span class="st">&quot;fifth&quot;</span>, <span class="dv">6</span>: <span class="st">&quot;sixth&quot;</span>, <span class="dv">7</span>: <span class="st">&quot;seventh&quot;</span>, <span class="dv">8</span>: <span class="st">&quot;eighth&quot;</span>, <span class="dv">9</span>: <span class="st">&quot;ninth&quot;</span>, <span class="dv">10</span>: <span class="st">&quot;tenth&quot;</span>, <span class="dv">11</span>: <span class="st">&quot;eleventh&quot;</span>, <span class="dv">12</span>: <span class="st">&quot;twelfth&quot;</span>}</span>
+<span id="cb13-22"><a href="#cb13-22" aria-hidden="true" tabindex="-1"></a>    num_word <span class="op">=</span> num_to_word[num]</span>
+<span id="cb13-23"><a href="#cb13-23" aria-hidden="true" tabindex="-1"></a>    intro <span class="op">=</span> <span class="st">&quot;On the &quot;</span> <span class="op">+</span> num_word <span class="op">+</span> <span class="st">&quot; day of Christmas, my true love sent to me:&quot;</span></span>
+<span id="cb13-24"><a href="#cb13-24" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb13-25"><a href="#cb13-25" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Step 2: Sing the gift phrases</span></span>
+<span id="cb13-26"><a href="#cb13-26" aria-hidden="true" tabindex="-1"></a>    gifts <span class="op">=</span> <span class="st">&quot;&quot;</span></span>
+<span id="cb13-27"><a href="#cb13-27" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(num, <span class="dv">0</span>, <span class="op">-</span><span class="dv">1</span>): <span class="co">#counting down</span></span>
+<span id="cb13-28"><a href="#cb13-28" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> phrase_col <span class="kw">not</span> <span class="kw">in</span> dataset.columns: <span class="co">#if the phrase column not there yet then add it in</span></span>
+<span id="cb13-29"><a href="#cb13-29" aria-hidden="true" tabindex="-1"></a>            row <span class="op">=</span> dataset.iloc[i<span class="op">-</span><span class="dv">1</span>]</span>
+<span id="cb13-30"><a href="#cb13-30" aria-hidden="true" tabindex="-1"></a>            day_num_words <span class="op">=</span> {<span class="dv">1</span>: <span class="st">&quot;one&quot;</span>, <span class="dv">2</span>: <span class="st">&quot;two&quot;</span>, <span class="dv">3</span>: <span class="st">&quot;three&quot;</span>, <span class="dv">4</span>: <span class="st">&quot;four&quot;</span>, <span class="dv">5</span>: <span class="st">&quot;five&quot;</span>, <span class="dv">6</span>: <span class="st">&quot;six&quot;</span>, <span class="dv">7</span>: <span class="st">&quot;seven&quot;</span>, <span class="dv">8</span>: <span class="st">&quot;eight&quot;</span>, <span class="dv">9</span>: <span class="st">&quot;nine&quot;</span>, <span class="dv">10</span>: <span class="st">&quot;ten&quot;</span>, <span class="dv">11</span>: <span class="st">&quot;eleven&quot;</span>, <span class="dv">12</span>: <span class="st">&quot;twelve&quot;</span>}</span>
+<span id="cb13-31"><a href="#cb13-31" aria-hidden="true" tabindex="-1"></a>            phrase <span class="op">=</span> make_phrase(row[<span class="st">&#39;Day&#39;</span>], day_num_words[row[<span class="st">&#39;Day&#39;</span>]], row[<span class="st">&#39;Gift.Item&#39;</span>], row[<span class="st">&#39;Verb&#39;</span>], row[<span class="st">&#39;Adjective&#39;</span>], row[<span class="st">&#39;Location&#39;</span>])</span>
+<span id="cb13-32"><a href="#cb13-32" aria-hidden="true" tabindex="-1"></a>        <span class="cf">else</span>: <span class="co">#otherwise just look at the column already created</span></span>
+<span id="cb13-33"><a href="#cb13-33" aria-hidden="true" tabindex="-1"></a>            phrase <span class="op">=</span> dataset.iloc[i<span class="op">-</span><span class="dv">1</span>][phrase_col]</span>
+<span id="cb13-34"><a href="#cb13-34" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb13-35"><a href="#cb13-35" aria-hidden="true" tabindex="-1"></a>        <span class="co"># proper grammar from &quot;make it nice&quot; section. also dealing with and issue</span></span>
+<span id="cb13-36"><a href="#cb13-36" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> i <span class="op">==</span> <span class="dv">1</span> <span class="kw">and</span> num <span class="op">&gt;</span> <span class="dv">1</span>:</span>
+<span id="cb13-37"><a href="#cb13-37" aria-hidden="true" tabindex="-1"></a>            <span class="co"># add &quot;and&quot; at the last line and end with period</span></span>
+<span id="cb13-38"><a href="#cb13-38" aria-hidden="true" tabindex="-1"></a>            gifts <span class="op">=</span> gifts <span class="op">+</span> <span class="st">&quot;</span><span class="ch">\n</span><span class="st">and &quot;</span> <span class="op">+</span> phrase <span class="op">+</span> <span class="st">&quot;.&quot;</span></span>
+<span id="cb13-39"><a href="#cb13-39" aria-hidden="true" tabindex="-1"></a>        <span class="cf">elif</span> i <span class="op">==</span> <span class="dv">1</span>:</span>
+<span id="cb13-40"><a href="#cb13-40" aria-hidden="true" tabindex="-1"></a>            <span class="co"># for the first day end with period</span></span>
+<span id="cb13-41"><a href="#cb13-41" aria-hidden="true" tabindex="-1"></a>            gifts <span class="op">=</span> gifts <span class="op">+</span> <span class="st">&quot;</span><span class="ch">\n</span><span class="st">&quot;</span> <span class="op">+</span> phrase <span class="op">+</span> <span class="st">&quot;.&quot;</span></span>
+<span id="cb13-42"><a href="#cb13-42" aria-hidden="true" tabindex="-1"></a>        <span class="cf">else</span>:</span>
+<span id="cb13-43"><a href="#cb13-43" aria-hidden="true" tabindex="-1"></a>            <span class="co"># add comma after other lines</span></span>
+<span id="cb13-44"><a href="#cb13-44" aria-hidden="true" tabindex="-1"></a>            gifts <span class="op">=</span> gifts <span class="op">+</span> <span class="st">&quot;</span><span class="ch">\n</span><span class="st">&quot;</span> <span class="op">+</span> phrase <span class="op">+</span> <span class="st">&quot;,&quot;</span></span>
+<span id="cb13-45"><a href="#cb13-45" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb13-46"><a href="#cb13-46" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Step 3: Put it all together and return</span></span>
+<span id="cb13-47"><a href="#cb13-47" aria-hidden="true" tabindex="-1"></a>    result <span class="op">=</span> intro <span class="op">+</span> gifts <span class="op">+</span> <span class="st">&quot;</span><span class="ch">\n</span><span class="st">&quot;</span>  <span class="co"># Add blank line after each verse</span></span>
+<span id="cb13-48"><a href="#cb13-48" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="bu">print</span>(result) <span class="co"># Had to add because otherwise wouldn&#39;t show formatting changes without using print</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<section id="test-your-function-2" class="level2">
+<h2 class="anchored" data-anchor-id="test-your-function-2">Test your Function</h2>
+<div id="ff13b4cd" class="cell" data-execution_count="10">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>sing_day(xmas, <span class="dv">3</span>, <span class="st">&quot;Full.Phrase&quot;</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>On the third day of Christmas, my true love sent to me:
+three french hens,
+two turtle doves,
+and a partridge in a pear tree.
+</code></pre>
+</div>
+</div>
+</section>
+</section>
+<section id="use-your-functions" class="level1">
+<h1>Use Your Functions!</h1>
+<div id="646b2210" class="cell" data-execution_count="11">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="co">#Run appropriate code to output the lyrics for the entire 12 Days of Christmas song.</span></span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a><span class="co"># list of days 1-12</span></span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>days <span class="op">=</span> <span class="bu">list</span>(<span class="bu">range</span>(<span class="dv">1</span>, <span class="dv">13</span>))</span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Use map to apply sing_day to each day</span></span>
+<span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a><span class="bu">list</span>(<span class="bu">map</span>(<span class="kw">lambda</span> day: sing_day(xmas, day, <span class="st">&quot;Full.Phrase&quot;</span>), days))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>On the first day of Christmas, my true love sent to me:
+a partridge in a pear tree.
+
+On the second day of Christmas, my true love sent to me:
+two turtle doves,
+and a partridge in a pear tree.
+
+On the third day of Christmas, my true love sent to me:
+three french hens,
+two turtle doves,
+and a partridge in a pear tree.
+
+On the fourth day of Christmas, my true love sent to me:
+four calling birds,
+three french hens,
+two turtle doves,
+and a partridge in a pear tree.
+
+On the fifth day of Christmas, my true love sent to me:
+five golden rings,
+four calling birds,
+three french hens,
+two turtle doves,
+and a partridge in a pear tree.
+
+On the sixth day of Christmas, my true love sent to me:
+six geese a-laying,
+five golden rings,
+four calling birds,
+three french hens,
+two turtle doves,
+and a partridge in a pear tree.
+
+On the seventh day of Christmas, my true love sent to me:
+seven swans a-swimming,
+six geese a-laying,
+five golden rings,
+four calling birds,
+three french hens,
+two turtle doves,
+and a partridge in a pear tree.
+
+On the eighth day of Christmas, my true love sent to me:
+eight maids a-milking,
+seven swans a-swimming,
+six geese a-laying,
+five golden rings,
+four calling birds,
+three french hens,
+two turtle doves,
+and a partridge in a pear tree.
+
+On the ninth day of Christmas, my true love sent to me:
+nine ladies dancing,
+eight maids a-milking,
+seven swans a-swimming,
+six geese a-laying,
+five golden rings,
+four calling birds,
+three french hens,
+two turtle doves,
+and a partridge in a pear tree.
+
+On the tenth day of Christmas, my true love sent to me:
+ten lords a-leaping,
+nine ladies dancing,
+eight maids a-milking,
+seven swans a-swimming,
+six geese a-laying,
+five golden rings,
+four calling birds,
+three french hens,
+two turtle doves,
+and a partridge in a pear tree.
+
+On the eleventh day of Christmas, my true love sent to me:
+eleven pipers piping,
+ten lords a-leaping,
+nine ladies dancing,
+eight maids a-milking,
+seven swans a-swimming,
+six geese a-laying,
+five golden rings,
+four calling birds,
+three french hens,
+two turtle doves,
+and a partridge in a pear tree.
+
+On the twelfth day of Christmas, my true love sent to me:
+twelve drummers drumming,
+eleven pipers piping,
+ten lords a-leaping,
+nine ladies dancing,
+eight maids a-milking,
+seven swans a-swimming,
+six geese a-laying,
+five golden rings,
+four calling birds,
+three french hens,
+two turtle doves,
+and a partridge in a pear tree.
+</code></pre>
+</div>
+<div class="cell-output cell-output-display" data-execution_count="11">
+<pre><code>[None, None, None, None, None, None, None, None, None, None, None, None]</code></pre>
+</div>
+</div>
+<div id="0548f539" class="cell" data-execution_count="12">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a>xmas2 <span class="op">=</span> pd.read_csv(<span class="st">&quot;https://www.dropbox.com/scl/fi/p9x9k8xwuzs9rhp582vfy/xmas_2.csv?rlkey=kvc3j3lmyn4opcidsrhcmrof1&amp;dl=1&quot;</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<div id="01d8a53b" class="cell" data-execution_count="13">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="bu">list</span>(<span class="bu">map</span>(<span class="kw">lambda</span> day: sing_day(xmas2, day, <span class="st">&quot;Full.Phrase&quot;</span>), <span class="bu">range</span>(<span class="dv">1</span>, <span class="dv">13</span>)))<span class="op">;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>On the first day of Christmas, my true love sent to me:
+an email from Cal Poly.
+
+On the second day of Christmas, my true love sent to me:
+two meal points,
+and an email from Cal Poly.
+
+On the third day of Christmas, my true love sent to me:
+three lost pens,
+two meal points,
+and an email from Cal Poly.
+
+On the fourth day of Christmas, my true love sent to me:
+four course reviews,
+three lost pens,
+two meal points,
+and an email from Cal Poly.
+
+On the fifth day of Christmas, my true love sent to me:
+five practice exams,
+four course reviews,
+three lost pens,
+two meal points,
+and an email from Cal Poly.
+
+On the sixth day of Christmas, my true love sent to me:
+six graders grading,
+five practice exams,
+four course reviews,
+three lost pens,
+two meal points,
+and an email from Cal Poly.
+
+On the seventh day of Christmas, my true love sent to me:
+seven seniors stressing,
+six graders grading,
+five practice exams,
+four course reviews,
+three lost pens,
+two meal points,
+and an email from Cal Poly.
+
+On the eighth day of Christmas, my true love sent to me:
+eight moms a-calling,
+seven seniors stressing,
+six graders grading,
+five practice exams,
+four course reviews,
+three lost pens,
+two meal points,
+and an email from Cal Poly.
+
+On the ninth day of Christmas, my true love sent to me:
+nine parties bumping,
+eight moms a-calling,
+seven seniors stressing,
+six graders grading,
+five practice exams,
+four course reviews,
+three lost pens,
+two meal points,
+and an email from Cal Poly.
+
+On the tenth day of Christmas, my true love sent to me:
+ten loads of laundry,
+nine parties bumping,
+eight moms a-calling,
+seven seniors stressing,
+six graders grading,
+five practice exams,
+four course reviews,
+three lost pens,
+two meal points,
+and an email from Cal Poly.
+
+On the eleventh day of Christmas, my true love sent to me:
+eleven friends goodbye-ing,
+ten loads of laundry,
+nine parties bumping,
+eight moms a-calling,
+seven seniors stressing,
+six graders grading,
+five practice exams,
+four course reviews,
+three lost pens,
+two meal points,
+and an email from Cal Poly.
+
+On the twelfth day of Christmas, my true love sent to me:
+twelve hours sleeping,
+eleven friends goodbye-ing,
+ten loads of laundry,
+nine parties bumping,
+eight moms a-calling,
+seven seniors stressing,
+six graders grading,
+five practice exams,
+four course reviews,
+three lost pens,
+two meal points,
+and an email from Cal Poly.
+</code></pre>
+</div>
+</div>
 </section>
 
 </main>

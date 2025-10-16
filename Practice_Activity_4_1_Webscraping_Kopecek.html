@@ -9,7 +9,7 @@
 <meta name="author" content="Karisa Kopecek">
 <meta name="dcterms.date" content="2025-10-16">
 
-<title>Titanic Wrangling</title>
+<title>Web Scraping</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -2185,7 +2185,7 @@ vertical-align: -.125em;
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<h1 class="title">Titanic Wrangling</h1>
+<h1 class="title">Web Scraping</h1>
 </div>
 
 
@@ -2214,18 +2214,162 @@ vertical-align: -.125em;
 </header>
 
 
-<section id="titanic-wrangling" class="level1">
-<h1>Titanic Wrangling</h1>
-<p>In this practice activity you’ll continue to work with the titanic dataset in ways that flex what you’ve learned about both data wrangling and data visualization.</p>
-<div id="cell-2" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;colab&quot;,&quot;value&quot;:{&quot;base_uri&quot;:&quot;https://localhost:8080/&quot;,&quot;height&quot;:206}}" data-outputid="41deeeed-7ce9-4ece-8fff-acb1f3ff5dbc" data-execution_count="1">
-<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Import the titanic dataset here</span></span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>data_dir <span class="op">=</span> <span class="st">&quot;https://dlsun.github.io/pods/data/&quot;</span></span>
-<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>df_titanic <span class="op">=</span> pd.read_csv(data_dir <span class="op">+</span> <span class="st">&quot;titanic.csv&quot;</span>)</span>
-<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>df_titanic.head()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<section id="xml-html-and-web-scraping" class="level1">
+<h1>XML, HTML, and Web Scraping</h1>
+<p>JSON and XML are two different ways to represent hierarchical data. Which one is better? There are lots of articles online which discuss similarities and differences between JSON and XML and their advantages and disadvantages. Both formats are still in current usage, so it is good to be familiar with both. However, JSON is more common, so we’ll focus on working with JSON representations of hierarchical data.</p>
+<p>The reading covered an example of using Beautiful Soup to parse XML. Rather than doing another example XML now, we’ll skip straight to scraping HTML from a webpage. Both HTML and XML can be parsed in a similar way with Beautiful Soup.</p>
+<div id="cell-2" class="cell" data-execution_count="1">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> requests</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> bs4 <span class="im">import</span> BeautifulSoup</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div id="cell-3" class="cell" data-execution_count="2">
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co">#pip install beautifulsoup4</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<section id="scraping-an-html-table-with-beautiful-soup" class="level2">
+<h2 class="anchored" data-anchor-id="scraping-an-html-table-with-beautiful-soup">Scraping an HTML table with Beautiful Soup</h2>
+<p>Open the URL https://en.wikipedia.org/wiki/List_of_United_States_cities_by_population and scroll down until you see a table of the cities in the U.S. with population over 100,000 (as of Jul 1, 2022). We’ll use Beautiful Soup to scrape information from this table.</p>
+<p>Read in the HTML from the ULR using the <code>requests</code> library.</p>
+<div id="cell-7" class="cell" data-execution_count="3">
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co"># YOUR CODE HERE</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>URL <span class="op">=</span> <span class="st">&quot;https://en.wikipedia.org/wiki/List_of_United_States_cities_by_population&quot;</span></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>HEADERS <span class="op">=</span> {<span class="st">&quot;User-Agent&quot;</span>: <span class="st">&quot;Mozilla/5.0 (Windows NT 10.0; Win64; x64)&quot;</span>}</span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>response <span class="op">=</span> requests.get(URL, headers<span class="op">=</span>HEADERS)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Use Beautiful Soup to parse this string into a tree called <code>soup</code></p>
+<div id="cell-9" class="cell">
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co"># YOUR CODE HERE</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="co">#response = requests.get(&quot;https://en.wikipedia.org/wiki/List_of_United_States_cities_by_population&quot;)</span></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>soup <span class="op">=</span> BeautifulSoup(response.text, <span class="st">&quot;html.parser&quot;</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>To find an HTML tag corresponding to a specific element on a webpage, right-click on it and choose “Inspect element”. Go to the cities table Wikipedia page and do this now.</p>
+<p>You should find that the cities table on the Wikipedia page corresponds to the element</p>
+<pre><code>&lt;table class=&quot;wikitable sortable jquery-tablesorter&quot; style=&quot;text-align:center&quot;&gt;</code></pre>
+<p>There are many <code>&lt;table&gt;</code> tags on the page.</p>
+<div id="cell-12" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;colab&quot;,&quot;value&quot;:{&quot;base_uri&quot;:&quot;https://localhost:8080/&quot;}}" data-outputid="1cbf646f-f5e4-45cc-b2b4-f35f4b8453be" data-execution_count="5">
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="bu">len</span>(soup.find_all(<span class="st">&quot;table&quot;</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display">
+<pre><code>10</code></pre>
+</div>
+</div>
+<p>We can use attributes like <code>class=</code> and <code>style=</code> to narrow down the list.</p>
+<div id="cell-14" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;colab&quot;,&quot;value&quot;:{&quot;base_uri&quot;:&quot;https://localhost:8080/&quot;}}" data-outputid="4e18d790-7b8b-464b-d7e5-30e4de04ec36" data-execution_count="6">
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="bu">len</span>(soup.find_all(<span class="st">&quot;table&quot;</span>,</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>                  attrs<span class="op">=</span>{</span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>                      <span class="st">&quot;class&quot;</span>: <span class="st">&quot;sortable wikitable sticky-header-multi static-row-numbers sort-under col1left col2center&quot;</span>,</span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>                      <span class="st">&quot;style&quot;</span>: <span class="st">&quot;text-align:right&quot;</span>}</span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>                  ))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display">
+<pre><code>1</code></pre>
+</div>
+</div>
+<p>At this point, you can manually inspect the tables on the webpage to find that the one we want is the first one (see <code>[0]</code> below). We’ll store this as <code>table</code>.</p>
+<div id="cell-16" class="cell" data-execution_count="7">
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>table <span class="op">=</span> soup.find_all(<span class="st">&quot;table&quot;</span>,</span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>                  attrs<span class="op">=</span>{</span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>                       <span class="st">&quot;class&quot;</span>: <span class="st">&quot;sortable wikitable sticky-header-multi static-row-numbers sort-under col1left col2center&quot;</span>,</span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>                       <span class="st">&quot;style&quot;</span>: <span class="st">&quot;text-align:right&quot;</span>}</span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>                  )[<span class="dv">0</span>]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p><strong>Now you will write code to scrape the information in <code>table</code> to create a Pandas data frame with one row for each city and columns for: city, state, population (2022 estimate), and 2020 land area (sq mi).</strong> Refer to the Notes/suggestions below as you write your code. A few Hints are provided further down, but try coding first before looking at the hints.</p>
+<p>Notes/suggestions:</p>
+<ul>
+<li>Use as a guide the code from the reading that produced the data frame of Statistics faculty</li>
+<li>Inspect the page source as you write your code</li>
+<li>You will need to write a loop to get the information for all cities, but you might want to try just scraping the info for New York first</li>
+<li>You will need to pull the text from the tag. If <code>.text</code> returns text with “” at the end, try <code>.get_text(strip = True)</code> instead of <code>.text</code></li>
+<li>Don’t forget to convert to a Pandas Data Frame; it should have 333 rows and 4 columns</li>
+<li>The goal of this exercise is just to create the Data Frame. If you were going to use it — e.g., what is the population density for all cities in CA? — then you would need to clean the data first (to clean strings and convert to quantitative). (You can use Beautiful Soup to do some of the cleaning for you, but that goes beyond our scope.)</li>
+</ul>
+<div id="cell-19" class="cell" data-execution_count="8">
+<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="co"># YOUR CODE HERE. ADD AS MANY CELLS AS NEEDED</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div id="cell-20" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;colab&quot;,&quot;value&quot;:{&quot;base_uri&quot;:&quot;https://localhost:8080/&quot;}}" data-outputid="228beb43-3590-4d52-a29e-63efdc74f1c5" data-execution_count="9">
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>city <span class="op">=</span> table.find_all(<span class="st">&quot;tr&quot;</span>)</span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a><span class="bu">len</span>(city)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display">
+<pre><code>348</code></pre>
+</div>
+</div>
+<div id="cell-21" class="cell" data-execution_count="10">
+<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>city <span class="op">=</span> table.find_all(<span class="st">&quot;tr&quot;</span>)[<span class="dv">2</span>]</span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a><span class="co">#city, output was too big</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div id="cell-22" class="cell" data-execution_count="11">
+<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>cells <span class="op">=</span> city.find_all(<span class="st">&quot;td&quot;</span>)</span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a><span class="co">#cells, output was too big</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div id="cell-23" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;colab&quot;,&quot;value&quot;:{&quot;base_uri&quot;:&quot;https://localhost:8080/&quot;,&quot;height&quot;:35}}" data-outputid="ae01fb23-1c2d-428a-9f1c-7c220dd857aa" data-execution_count="12">
+<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="co">#city</span></span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>name <span class="op">=</span> cells[<span class="dv">0</span>].get_text(strip<span class="op">=</span> <span class="va">True</span>)</span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>name</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display">
+<pre><code>&#39;New York[c]&#39;</code></pre>
+</div>
+</div>
+<div id="cell-24" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;colab&quot;,&quot;value&quot;:{&quot;base_uri&quot;:&quot;https://localhost:8080/&quot;,&quot;height&quot;:35}}" data-outputid="f8df09bb-97cf-48c1-93a5-688fe814ee62" data-execution_count="13">
+<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="co">#state</span></span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>state <span class="op">=</span> cells[<span class="dv">1</span>].get_text(strip<span class="op">=</span> <span class="va">True</span>)</span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a>state</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display">
+<pre><code>&#39;NY&#39;</code></pre>
+</div>
+</div>
+<div id="cell-25" class="cell" data-execution_count="14">
+<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a> <span class="co">#city, state, population (2022 estimate), and 2020 land area (sq mi)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div id="cell-26" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;colab&quot;,&quot;value&quot;:{&quot;base_uri&quot;:&quot;https://localhost:8080/&quot;,&quot;height&quot;:35}}" data-outputid="c6a18c63-3b78-4f64-cd46-2393921056d7" data-execution_count="15">
+<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="co">#population</span></span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a>population <span class="op">=</span> cells[<span class="dv">2</span>].get_text(strip<span class="op">=</span> <span class="va">True</span>)</span>
+<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a>population</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display">
+<pre><code>&#39;8,478,072&#39;</code></pre>
+</div>
+</div>
+<div id="cell-27" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;colab&quot;,&quot;value&quot;:{&quot;base_uri&quot;:&quot;https://localhost:8080/&quot;,&quot;height&quot;:35}}" data-outputid="e24fc0ba-36f2-4f03-8f28-91a7fd96e16e" data-execution_count="16">
+<div class="sourceCode cell-code" id="cb23"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="co">#land area</span></span>
+<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a>area <span class="op">=</span> cells[<span class="dv">5</span>].get_text(strip<span class="op">=</span> <span class="va">True</span>)</span>
+<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a>area</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display">
+<pre><code>&#39;300.5&#39;</code></pre>
+</div>
+</div>
+<div id="cell-28" class="cell" data-execution_count="17">
+<div class="sourceCode cell-code" id="cb25"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="co"># initialize an empty list</span></span>
+<span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a>rows <span class="op">=</span> []</span>
+<span id="cb25-3"><a href="#cb25-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-4"><a href="#cb25-4" aria-hidden="true" tabindex="-1"></a><span class="co"># iterate over all rows in the city table</span></span>
+<span id="cb25-5"><a href="#cb25-5" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> city <span class="kw">in</span> table.find_all(<span class="st">&quot;tr&quot;</span>)[<span class="dv">2</span>:]:</span>
+<span id="cb25-6"><a href="#cb25-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-7"><a href="#cb25-7" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Get all the cells (&lt;td&gt;) in the row.</span></span>
+<span id="cb25-8"><a href="#cb25-8" aria-hidden="true" tabindex="-1"></a>    cells <span class="op">=</span> table.find_all(<span class="st">&quot;td&quot;</span>)</span>
+<span id="cb25-9"><a href="#cb25-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-10"><a href="#cb25-10" aria-hidden="true" tabindex="-1"></a><span class="co">#see code above</span></span>
+<span id="cb25-11"><a href="#cb25-11" aria-hidden="true" tabindex="-1"></a>    name <span class="op">=</span> cells[<span class="dv">0</span>].find(<span class="st">&quot;a&quot;</span>)</span>
+<span id="cb25-12"><a href="#cb25-12" aria-hidden="true" tabindex="-1"></a>    name <span class="op">=</span> name.text</span>
+<span id="cb25-13"><a href="#cb25-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-14"><a href="#cb25-14" aria-hidden="true" tabindex="-1"></a>    state <span class="op">=</span> cells[<span class="dv">1</span>].get_text(strip<span class="op">=</span> <span class="va">True</span>)</span>
+<span id="cb25-15"><a href="#cb25-15" aria-hidden="true" tabindex="-1"></a>    state</span>
+<span id="cb25-16"><a href="#cb25-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-17"><a href="#cb25-17" aria-hidden="true" tabindex="-1"></a>    population <span class="op">=</span> cells[<span class="dv">2</span>].get_text(strip<span class="op">=</span> <span class="va">True</span>)</span>
+<span id="cb25-18"><a href="#cb25-18" aria-hidden="true" tabindex="-1"></a>    population</span>
+<span id="cb25-19"><a href="#cb25-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-20"><a href="#cb25-20" aria-hidden="true" tabindex="-1"></a>    area <span class="op">=</span> cells[<span class="dv">5</span>].get_text(strip<span class="op">=</span> <span class="va">True</span>)</span>
+<span id="cb25-21"><a href="#cb25-21" aria-hidden="true" tabindex="-1"></a>    area</span>
+<span id="cb25-22"><a href="#cb25-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-23"><a href="#cb25-23" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Append this data.</span></span>
+<span id="cb25-24"><a href="#cb25-24" aria-hidden="true" tabindex="-1"></a>    rows.append({</span>
+<span id="cb25-25"><a href="#cb25-25" aria-hidden="true" tabindex="-1"></a>        <span class="st">&quot;city&quot;</span>: name,</span>
+<span id="cb25-26"><a href="#cb25-26" aria-hidden="true" tabindex="-1"></a>        <span class="st">&quot;state&quot;</span>: state,</span>
+<span id="cb25-27"><a href="#cb25-27" aria-hidden="true" tabindex="-1"></a>        <span class="st">&quot;population&quot;</span>: population,</span>
+<span id="cb25-28"><a href="#cb25-28" aria-hidden="true" tabindex="-1"></a>        <span class="st">&quot;area&quot;</span>: area</span>
+<span id="cb25-29"><a href="#cb25-29" aria-hidden="true" tabindex="-1"></a>    })</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div id="cell-29" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;colab&quot;,&quot;value&quot;:{&quot;base_uri&quot;:&quot;https://localhost:8080/&quot;,&quot;height&quot;:206}}" data-outputid="79fd1ae1-acfc-4fa7-e4b2-9556421b2e37" data-execution_count="18">
+<div class="sourceCode cell-code" id="cb26"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a>pd.DataFrame(rows).head()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display">
 <div>
 
@@ -2234,77 +2378,47 @@ vertical-align: -.125em;
 <thead>
 <tr class="header">
 <th data-quarto-table-cell-role="th"></th>
-<th data-quarto-table-cell-role="th">name</th>
-<th data-quarto-table-cell-role="th">gender</th>
-<th data-quarto-table-cell-role="th">age</th>
-<th data-quarto-table-cell-role="th">class</th>
-<th data-quarto-table-cell-role="th">embarked</th>
-<th data-quarto-table-cell-role="th">country</th>
-<th data-quarto-table-cell-role="th">ticketno</th>
-<th data-quarto-table-cell-role="th">fare</th>
-<th data-quarto-table-cell-role="th">survived</th>
+<th data-quarto-table-cell-role="th">city</th>
+<th data-quarto-table-cell-role="th">state</th>
+<th data-quarto-table-cell-role="th">population</th>
+<th data-quarto-table-cell-role="th">area</th>
 </tr>
 </thead>
 <tbody>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">0</td>
-<td>Abbing, Mr. Anthony</td>
-<td>male</td>
-<td>42.0</td>
-<td>3rd</td>
-<td>S</td>
-<td>United States</td>
-<td>5547.0</td>
-<td>7.11</td>
-<td>0</td>
+<td>New York</td>
+<td>NY</td>
+<td>8,478,072</td>
+<td>300.5</td>
 </tr>
 <tr class="even">
 <td data-quarto-table-cell-role="th">1</td>
-<td>Abbott, Mr. Eugene Joseph</td>
-<td>male</td>
-<td>13.0</td>
-<td>3rd</td>
-<td>S</td>
-<td>United States</td>
-<td>2673.0</td>
-<td>20.05</td>
-<td>0</td>
+<td>New York</td>
+<td>NY</td>
+<td>8,478,072</td>
+<td>300.5</td>
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">2</td>
-<td>Abbott, Mr. Rossmore Edward</td>
-<td>male</td>
-<td>16.0</td>
-<td>3rd</td>
-<td>S</td>
-<td>United States</td>
-<td>2673.0</td>
-<td>20.05</td>
-<td>0</td>
+<td>New York</td>
+<td>NY</td>
+<td>8,478,072</td>
+<td>300.5</td>
 </tr>
 <tr class="even">
 <td data-quarto-table-cell-role="th">3</td>
-<td>Abbott, Mrs. Rhoda Mary &#39;Rosa&#39;</td>
-<td>female</td>
-<td>39.0</td>
-<td>3rd</td>
-<td>S</td>
-<td>England</td>
-<td>2673.0</td>
-<td>20.05</td>
-<td>1</td>
+<td>New York</td>
+<td>NY</td>
+<td>8,478,072</td>
+<td>300.5</td>
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">4</td>
-<td>Abelseth, Miss. Karen Marie</td>
-<td>female</td>
-<td>16.0</td>
-<td>3rd</td>
-<td>S</td>
-<td>Norway</td>
-<td>348125.0</td>
-<td>7.13</td>
-<td>1</td>
+<td>New York</td>
+<td>NY</td>
+<td>8,478,072</td>
+<td>300.5</td>
 </tr>
 </tbody>
 </table>
@@ -2312,221 +2426,220 @@ vertical-align: -.125em;
 </div>
 </div>
 </div>
-<section id="filter-the-data-to-include-passengers-only.-calculate-the-joint-distribution-cross-tab-between-a-passengers-class-and-where-they-embarked." class="level2">
-<h2 class="anchored" data-anchor-id="filter-the-data-to-include-passengers-only.-calculate-the-joint-distribution-cross-tab-between-a-passengers-class-and-where-they-embarked.">1. Filter the data to include passengers only. Calculate the joint distribution (cross-tab) between a passenger’s class and where they embarked.</h2>
-<div id="cell-4" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;colab&quot;,&quot;value&quot;:{&quot;base_uri&quot;:&quot;https://localhost:8080/&quot;,&quot;height&quot;:175}}" data-outputid="33b6516a-2762-4b8b-e170-1530d0ff6461" data-execution_count="2">
-<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Code here</span></span>
-<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>df_pass <span class="op">=</span> df_titanic[df_titanic[<span class="st">&quot;class&quot;</span>].isin([<span class="st">&quot;1st&quot;</span>, <span class="st">&quot;2nd&quot;</span>, <span class="st">&quot;3rd&quot;</span>])]</span>
-<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>cross_tab <span class="op">=</span> pd.crosstab(df_pass[<span class="st">&quot;class&quot;</span>], df_pass[<span class="st">&quot;embarked&quot;</span>])</span>
-<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>cross_tab</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-display">
-<div>
-
-
-<table class="dataframe caption-top table table-sm table-striped small" data-quarto-postprocess="true" data-border="1">
-<thead>
-<tr class="header">
-<th data-quarto-table-cell-role="th">embarked</th>
-<th data-quarto-table-cell-role="th">B</th>
-<th data-quarto-table-cell-role="th">C</th>
-<th data-quarto-table-cell-role="th">Q</th>
-<th data-quarto-table-cell-role="th">S</th>
-</tr>
-<tr class="even">
-<th data-quarto-table-cell-role="th">class</th>
-<th data-quarto-table-cell-role="th"></th>
-<th data-quarto-table-cell-role="th"></th>
-<th data-quarto-table-cell-role="th"></th>
-<th data-quarto-table-cell-role="th"></th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td data-quarto-table-cell-role="th">1st</td>
-<td>3</td>
-<td>143</td>
-<td>3</td>
-<td>175</td>
-</tr>
-<tr class="even">
-<td data-quarto-table-cell-role="th">2nd</td>
-<td>6</td>
-<td>26</td>
-<td>7</td>
-<td>245</td>
-</tr>
-<tr class="odd">
-<td data-quarto-table-cell-role="th">3rd</td>
-<td>0</td>
-<td>102</td>
-<td>113</td>
-<td>494</td>
-</tr>
-</tbody>
-</table>
-
-</div>
-</div>
-</div>
-</section>
-<section id="using-the-joint-distribution-that-calculated-above-calculate-the-following" class="level2">
-<h2 class="anchored" data-anchor-id="using-the-joint-distribution-that-calculated-above-calculate-the-following">2. Using the joint distribution that calculated above, calculate the following:</h2>
+<p>Hints:</p>
 <ul>
-<li>the conditional distribution of their class given where they embarked</li>
-<li>the conditional distribution of where they embarked given their class</li>
+<li>Each city is a row in the table; find all the <code>&lt;tr&gt;</code> tags to find all the cities</li>
+<li>Look for the <code>&lt;td&gt;</code> tag to see table entries within a row</li>
+<li>The rank column is represented by <code>&lt;th&gt;</code> tags, rather than <code>&lt;td&gt;</code> tags. So within a row, the first (that is, <code>[0]</code>) <code>&lt;td&gt;</code> tag corresponds to the city name.</li>
 </ul>
-<p>Use the conditional distributions that you calculate to answer the following quesitons:</p>
-<ul>
-<li>What proportion of 3rd class passengers embarked at Southampton?</li>
-<li>What proportion of Southampton passengers were in 3rd class?</li>
-</ul>
-<div id="cell-6" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;colab&quot;,&quot;value&quot;:{&quot;base_uri&quot;:&quot;https://localhost:8080/&quot;,&quot;height&quot;:175}}" data-outputid="65b3e4f5-c04f-470e-e53c-dd4fb26fa446" data-execution_count="3">
-<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Code here</span></span>
-<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="co"># Conditional distribution of class given embarkation port</span></span>
-<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="co"># P(Class | Embarked) - normalize by columns</span></span>
-<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="co">#index based on second one beibng embarked which is a column</span></span>
-<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>cond_class_given_embarked <span class="op">=</span> pd.crosstab(df_pass[<span class="st">&quot;class&quot;</span>], df_pass[<span class="st">&quot;embarked&quot;</span>], normalize<span class="op">=</span><span class="st">&quot;columns&quot;</span>)</span>
-<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>cond_class_given_embarked</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-display">
-<div>
-
-
-<table class="dataframe caption-top table table-sm table-striped small" data-quarto-postprocess="true" data-border="1">
-<thead>
-<tr class="header">
-<th data-quarto-table-cell-role="th">embarked</th>
-<th data-quarto-table-cell-role="th">B</th>
-<th data-quarto-table-cell-role="th">C</th>
-<th data-quarto-table-cell-role="th">Q</th>
-<th data-quarto-table-cell-role="th">S</th>
-</tr>
-<tr class="even">
-<th data-quarto-table-cell-role="th">class</th>
-<th data-quarto-table-cell-role="th"></th>
-<th data-quarto-table-cell-role="th"></th>
-<th data-quarto-table-cell-role="th"></th>
-<th data-quarto-table-cell-role="th"></th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td data-quarto-table-cell-role="th">1st</td>
-<td>0.333333</td>
-<td>0.527675</td>
-<td>0.024390</td>
-<td>0.191466</td>
-</tr>
-<tr class="even">
-<td data-quarto-table-cell-role="th">2nd</td>
-<td>0.666667</td>
-<td>0.095941</td>
-<td>0.056911</td>
-<td>0.268053</td>
-</tr>
-<tr class="odd">
-<td data-quarto-table-cell-role="th">3rd</td>
-<td>0.000000</td>
-<td>0.376384</td>
-<td>0.918699</td>
-<td>0.540481</td>
-</tr>
-</tbody>
-</table>
-
-</div>
-</div>
-</div>
-<div id="cell-7" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;colab&quot;,&quot;value&quot;:{&quot;base_uri&quot;:&quot;https://localhost:8080/&quot;,&quot;height&quot;:175}}" data-outputid="f14cbfc9-b55b-4f77-e9c0-bfad4bcaf660" data-execution_count="4">
-<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Conditional distribution of embarkation port given class</span></span>
-<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="co"># P(Embarked | Class) - normalize by rows</span></span>
-<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>cond_embarked_given_class <span class="op">=</span> pd.crosstab(df_pass[<span class="st">&quot;class&quot;</span>], df_pass[<span class="st">&quot;embarked&quot;</span>], normalize<span class="op">=</span><span class="st">&quot;index&quot;</span>)</span>
-<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>cond_embarked_given_class</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-display">
-<div>
-
-
-<table class="dataframe caption-top table table-sm table-striped small" data-quarto-postprocess="true" data-border="1">
-<thead>
-<tr class="header">
-<th data-quarto-table-cell-role="th">embarked</th>
-<th data-quarto-table-cell-role="th">B</th>
-<th data-quarto-table-cell-role="th">C</th>
-<th data-quarto-table-cell-role="th">Q</th>
-<th data-quarto-table-cell-role="th">S</th>
-</tr>
-<tr class="even">
-<th data-quarto-table-cell-role="th">class</th>
-<th data-quarto-table-cell-role="th"></th>
-<th data-quarto-table-cell-role="th"></th>
-<th data-quarto-table-cell-role="th"></th>
-<th data-quarto-table-cell-role="th"></th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td data-quarto-table-cell-role="th">1st</td>
-<td>0.009259</td>
-<td>0.441358</td>
-<td>0.009259</td>
-<td>0.540123</td>
-</tr>
-<tr class="even">
-<td data-quarto-table-cell-role="th">2nd</td>
-<td>0.021127</td>
-<td>0.091549</td>
-<td>0.024648</td>
-<td>0.862676</td>
-</tr>
-<tr class="odd">
-<td data-quarto-table-cell-role="th">3rd</td>
-<td>0.000000</td>
-<td>0.143865</td>
-<td>0.159379</td>
-<td>0.696756</td>
-</tr>
-</tbody>
-</table>
-
-</div>
-</div>
-</div>
-<div id="cell-8" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;colab&quot;,&quot;value&quot;:{&quot;base_uri&quot;:&quot;https://localhost:8080/&quot;}}" data-outputid="37720360-3b86-471c-8c13-38e16e1e0bed" data-execution_count="5">
-<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Answer the questions:</span></span>
-<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="co"># What proportion of 3rd class passengers embarked at Southampton?</span></span>
-<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>prop_3rd_southampton <span class="op">=</span> cond_embarked_given_class.loc[<span class="st">&quot;3rd&quot;</span>, <span class="st">&quot;S&quot;</span>]</span>
-<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a><span class="co"># What proportion of Southampton passengers were in 3rd class?</span></span>
-<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>prop_southampton_3rd <span class="op">=</span> cond_class_given_embarked.loc[<span class="st">&quot;3rd&quot;</span>, <span class="st">&quot;S&quot;</span>]</span>
-<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>prop_3rd_southampton, prop_southampton_3rd</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-display">
-<pre><code>(np.float64(0.6967559943582511), np.float64(0.5404814004376368))</code></pre>
-</div>
-</div>
 </section>
-<section id="make-a-visualization-showing-the-distribution-of-a-passengers-class-given-where-they-embarked." class="level2">
-<h2 class="anchored" data-anchor-id="make-a-visualization-showing-the-distribution-of-a-passengers-class-given-where-they-embarked.">3. Make a visualization showing the distribution of a passenger’s class, given where they embarked.</h2>
-<p>Discuss the pros and cons of using this visualization versus the distributions you calculated before, to answer the previous questions.</p>
-<div id="cell-10" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;colab&quot;,&quot;value&quot;:{&quot;base_uri&quot;:&quot;https://localhost:8080/&quot;,&quot;height&quot;:497}}" data-outputid="5002cf28-8cc5-48fe-bae9-3a2af4dcc84c" data-execution_count="6">
-<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Code here</span></span>
-<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> plotnine <span class="im">import</span> geom_bar, ggplot, aes</span>
-<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>(ggplot(df_pass, aes(x<span class="op">=</span><span class="st">&quot;embarked&quot;</span>, fill<span class="op">=</span><span class="st">&quot;class&quot;</span>))</span>
-<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a> <span class="op">+</span> geom_bar(position<span class="op">=</span><span class="st">&quot;fill&quot;</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<section id="aside-scraping-an-html-table-with-pandas" class="level2">
+<h2 class="anchored" data-anchor-id="aside-scraping-an-html-table-with-pandas">Aside: Scraping an HTML table with Pandas</h2>
+<p>The Pandas command <code>read_html</code> can be used to scrape information from an HTML table on a webpage.</p>
+<p>We can call <code>read_html</code> on the URL.</p>
+<div id="cell-33" class="cell" data-execution_count="19">
+<div class="sourceCode cell-code" id="cb27"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a>URL <span class="op">=</span> <span class="st">&quot;https://en.wikipedia.org/wiki/List_of_United_States_cities_by_population&quot;</span></span>
+<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a>HEADERS <span class="op">=</span> {<span class="st">&quot;User-Agent&quot;</span>: <span class="st">&quot;Mozilla/5.0 (Windows NT 10.0; Win64; x64)&quot;</span>}</span>
+<span id="cb27-3"><a href="#cb27-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb27-4"><a href="#cb27-4" aria-hidden="true" tabindex="-1"></a>response <span class="op">=</span> requests.get(URL, headers<span class="op">=</span>HEADERS)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div id="cell-34" class="cell" data-execution_count="20">
+<div class="sourceCode cell-code" id="cb28"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a><span class="co">#response.text, output was too big to show</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div id="cell-35" class="cell" data-execution_count="21">
+<div class="sourceCode cell-code" id="cb29"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> io <span class="im">import</span> StringIO</span>
+<span id="cb29-2"><a href="#cb29-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-3"><a href="#cb29-3" aria-hidden="true" tabindex="-1"></a>df <span class="op">=</span> pd.read_html(StringIO(response.text))</span>
+<span id="cb29-4"><a href="#cb29-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-5"><a href="#cb29-5" aria-hidden="true" tabindex="-1"></a><span class="co">#df, output was too big to show</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>However, this scrapes all the tables on the webpage, not just the one we want. As with Beautiful Soup, we can narrow the search by specifying the table attributes.</p>
+<div id="cell-37" class="cell" data-execution_count="22">
+<div class="sourceCode cell-code" id="cb30"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a>df2 <span class="op">=</span> pd.read_html(StringIO(response.text), attrs <span class="op">=</span> {<span class="st">&quot;class&quot;</span>: <span class="st">&quot;sortable wikitable sticky-header-multi static-row-numbers sort-under col1left col2center&quot;</span>,</span>
+<span id="cb30-2"><a href="#cb30-2" aria-hidden="true" tabindex="-1"></a>                       <span class="st">&quot;style&quot;</span>: <span class="st">&quot;text-align:right&quot;</span>})</span>
+<span id="cb30-3"><a href="#cb30-3" aria-hidden="true" tabindex="-1"></a><span class="co">#df2, output was too big to show</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>This still returns 3 tables. As we remarked above, the table that we want is the first one (see <code>[0]</code> below).</p>
+<div id="cell-39" class="cell" data-execution_count="23">
+<div class="sourceCode cell-code" id="cb31"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a><span class="co">#df_cities2 = pd.read_html(&quot;https://en.wikipedia.org/wiki/List_of_United_States_cities_by_population&quot;, attrs = {&#39;class&#39;: &#39;wikitable sortable&#39;, &quot;style&quot;: &quot;text-align:center&quot;})[0]</span></span>
+<span id="cb31-2"><a href="#cb31-2" aria-hidden="true" tabindex="-1"></a><span class="co">#df_cities2</span></span>
+<span id="cb31-3"><a href="#cb31-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb31-4"><a href="#cb31-4" aria-hidden="true" tabindex="-1"></a>df_cities2 <span class="op">=</span> pd.read_html(StringIO(response.text), attrs <span class="op">=</span> {<span class="st">&quot;class&quot;</span>: <span class="st">&quot;sortable wikitable sticky-header-multi static-row-numbers sort-under col1left col2center&quot;</span>,</span>
+<span id="cb31-5"><a href="#cb31-5" aria-hidden="true" tabindex="-1"></a>                       <span class="st">&quot;style&quot;</span>: <span class="st">&quot;text-align:right&quot;</span>})[<span class="dv">0</span>]</span>
+<span id="cb31-6"><a href="#cb31-6" aria-hidden="true" tabindex="-1"></a><span class="co">#df_cities2, output everything correctly but was very large</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Wait, that seemed much easier than using Beautiful Soup, and it returned a data frame, and we even got for free some formatting like removing the commas from the population! Why didn’t we just use <code>read_html</code> in the first place? It’s true the <code>read_html</code> works well when scraping information from an HTML <em>table</em>. Unfortunately, you often want to scrape information from a webpage that isn’t conveniently stored in an HTML table, in which case <code>read_html</code> won’t work. (It only searches for <code>&lt;table&gt;</code>, <code>&lt;th&gt;</code>, <code>&lt;tr&gt;</code>, and <code>&lt;td&gt;</code> tags, but there are many other HTML tags.) Though Beautiful Soup is not as simple as <code>read_html</code>, it is more flexible and thus more widely applicable.</p>
+</section>
+<section id="scraping-information-that-is-not-in-a-table-with-beautiful-soup" class="level2">
+<h2 class="anchored" data-anchor-id="scraping-information-that-is-not-in-a-table-with-beautiful-soup">Scraping information that is NOT in a <code>&lt;table&gt;</code> with Beautiful Soup</h2>
+<p>The Cal Poly course catalog http://catalog.calpoly.edu/collegesandprograms/collegeofsciencemathematics/statistics/#courseinventory contains a list of courses offered by the Statistics department. <strong>You will scrape this website to obtain a Pandas data frame with one row for each DATA or STAT course and two columns: course name and number (e.g, DATA 301. Introduction to Data Science) and term typically offered (e.g., Term Typically Offered: F, W, SP).</strong></p>
+<p>Note: Pandas <code>read_html</code> is not help here since the courses are not stored in a <code>&lt;table&gt;.</code></p>
+<div id="cell-44" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;colab&quot;,&quot;value&quot;:{&quot;base_uri&quot;:&quot;https://localhost:8080/&quot;}}" data-outputid="5eda1a60-3b66-4d8f-e3f6-170a3c7b7e87" data-execution_count="24">
+<div class="sourceCode cell-code" id="cb32"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a>pd.read_html(<span class="st">&quot;http://catalog.calpoly.edu/collegesandprograms/collegeofsciencemathematics/statistics/#courseinventory&quot;</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display">
+<pre><code>[                                        Program name   Program type
+ 0                              Actuarial Preparation          Minor
+ 1  Cross Disciplinary Studies Minor in Bioinforma...          Minor
+ 2   Cross Disciplinary Studies Minor in Data Science          Minor
+ 3                                         Statistics  BS, MS, Minor]</code></pre>
+</div>
+</div>
+<p>Notes/suggestions:</p>
+<ul>
+<li>Inspect the page source as you write your code</li>
+<li>The courses are not stored in a <code>&lt;table&gt;</code>. How are they stored?</li>
+<li>You will need to write a loop to get the information for all courses, but you might want to try just scraping the info for DATA 100 first</li>
+<li>What kind of tag is the course name stored in? What is the <code>class</code> of the tag?</li>
+<li>What kind of tag is the quarter(s) the course is offered stored in? What is the <code>class</code> of the tag? Is this the only tag of this type with the class? How will you get the one you want?</li>
+<li>You don’t have to remove the number of units (e.g., 4 units) from the course name and number, but you can try it if you want</li>
+<li>You will need to pull the text from the tag. If <code>.text</code> returns text with “” at the end, try <code>get_text(strip = True)</code> instead of <code>text</code></li>
+<li>Don’t forget to convert to a Pandas Data Frame; it should have 74 rows and 2 columns</li>
+<li>The goal of this exercise is just to create the Data Frame. If you were going to use it then you might need to clean the data first. (You can use Beautiful Soup to do some of the cleaning for you, but that goes beyond our scope.)</li>
+</ul>
+<div id="cell-46" class="cell" data-execution_count="25">
+<div class="sourceCode cell-code" id="cb34"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a><span class="co"># YOUR CODE HERE. ADD AS MANY CELLS AS NEEDED</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div id="cell-47" class="cell" data-execution_count="26">
+<div class="sourceCode cell-code" id="cb35"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Read in the HTML from the URL</span></span>
+<span id="cb35-2"><a href="#cb35-2" aria-hidden="true" tabindex="-1"></a>URL <span class="op">=</span> <span class="st">&quot;http://catalog.calpoly.edu/collegesandprograms/collegeofsciencemathematics/statistics/#courseinventory&quot;</span></span>
+<span id="cb35-3"><a href="#cb35-3" aria-hidden="true" tabindex="-1"></a>HEADERS <span class="op">=</span> {<span class="st">&quot;User-Agent&quot;</span>: <span class="st">&quot;Mozilla/5.0 (Windows NT 10.0; Win64; x64)&quot;</span>}</span>
+<span id="cb35-4"><a href="#cb35-4" aria-hidden="true" tabindex="-1"></a>response <span class="op">=</span> requests.get(URL, headers<span class="op">=</span>HEADERS)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div id="cell-48" class="cell" data-execution_count="27">
+<div class="sourceCode cell-code" id="cb36"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Parse the HTML with Beautiful Soup</span></span>
+<span id="cb36-2"><a href="#cb36-2" aria-hidden="true" tabindex="-1"></a>soup <span class="op">=</span> BeautifulSoup(response.text, <span class="st">&quot;html.parser&quot;</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div id="cell-49" class="cell" data-execution_count="28">
+<div class="sourceCode cell-code" id="cb37"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb37-1"><a href="#cb37-1" aria-hidden="true" tabindex="-1"></a><span class="co"># First, find all course blocks</span></span>
+<span id="cb37-2"><a href="#cb37-2" aria-hidden="true" tabindex="-1"></a>courses <span class="op">=</span> soup.find_all(<span class="st">&quot;div&quot;</span>, {<span class="st">&quot;class&quot;</span>: <span class="st">&quot;courseblock&quot;</span>})</span>
+<span id="cb37-3"><a href="#cb37-3" aria-hidden="true" tabindex="-1"></a><span class="co">#courses #ran this before, gave the correct output but was super long so put it in hash tags for now</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div id="cell-50" class="cell" data-execution_count="29">
+<div class="sourceCode cell-code" id="cb38"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb38-1"><a href="#cb38-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Looking at the first course block only</span></span>
+<span id="cb38-2"><a href="#cb38-2" aria-hidden="true" tabindex="-1"></a>course <span class="op">=</span> courses[<span class="dv">0</span>]</span>
+<span id="cb38-3"><a href="#cb38-3" aria-hidden="true" tabindex="-1"></a><span class="co">#course, output was too big to show</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div id="cell-51" class="cell" data-execution_count="30">
+<div class="sourceCode cell-code" id="cb39"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb39-1"><a href="#cb39-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Find the course title</span></span>
+<span id="cb39-2"><a href="#cb39-2" aria-hidden="true" tabindex="-1"></a>course_title <span class="op">=</span> course.find(<span class="st">&quot;p&quot;</span>, {<span class="st">&quot;class&quot;</span>: <span class="st">&quot;courseblocktitle&quot;</span>})</span>
+<span id="cb39-3"><a href="#cb39-3" aria-hidden="true" tabindex="-1"></a><span class="co">#course_title, output too big to show</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div id="cell-52" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;colab&quot;,&quot;value&quot;:{&quot;base_uri&quot;:&quot;https://localhost:8080/&quot;,&quot;height&quot;:35}}" data-outputid="418c020a-6d5f-4b5e-f2de-8e65e76baa42" data-execution_count="31">
+<div class="sourceCode cell-code" id="cb40"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb40-1"><a href="#cb40-1" aria-hidden="true" tabindex="-1"></a><span class="co">#I want just the title</span></span>
+<span id="cb40-2"><a href="#cb40-2" aria-hidden="true" tabindex="-1"></a>course_title.get_text(strip<span class="op">=</span><span class="va">True</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display">
+<pre><code>&#39;DATA\xa0100. Data Science for All I.4 units&#39;</code></pre>
+</div>
+</div>
+<div id="cell-53" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;colab&quot;,&quot;value&quot;:{&quot;base_uri&quot;:&quot;https://localhost:8080/&quot;}}" data-outputid="5c811cc2-7348-4b95-fe96-185ccb64ab59" data-execution_count="32">
+<div class="sourceCode cell-code" id="cb42"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb42-1"><a href="#cb42-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Find the units</span></span>
+<span id="cb42-2"><a href="#cb42-2" aria-hidden="true" tabindex="-1"></a>units <span class="op">=</span> course_title.find(<span class="st">&quot;span&quot;</span>, {<span class="st">&quot;class&quot;</span>: <span class="st">&quot;courseblockhours&quot;</span>})</span>
+<span id="cb42-3"><a href="#cb42-3" aria-hidden="true" tabindex="-1"></a>units <span class="co">#didn&#39;t end up needing this code, looked at hints to remove units</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display">
+<pre><code>&lt;span class=&quot;courseblockhours&quot;&gt;4 units
+&lt;/span&gt;</code></pre>
+</div>
+</div>
+<div id="cell-54" class="cell" data-execution_count="33">
+<div class="sourceCode cell-code" id="cb44"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb44-1"><a href="#cb44-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Find the div with class=&quot;noindent courseextendedwrap&quot; for F,W,S offering</span></span>
+<span id="cb44-2"><a href="#cb44-2" aria-hidden="true" tabindex="-1"></a>extended_wrap <span class="op">=</span> course.find(<span class="st">&quot;div&quot;</span>, {<span class="st">&quot;class&quot;</span>: <span class="st">&quot;noindent courseextendedwrap&quot;</span>})</span>
+<span id="cb44-3"><a href="#cb44-3" aria-hidden="true" tabindex="-1"></a><span class="co">#extended_wrap, output too big to show</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div id="cell-55" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;colab&quot;,&quot;value&quot;:{&quot;base_uri&quot;:&quot;https://localhost:8080/&quot;,&quot;height&quot;:35}}" data-outputid="adef44db-34c7-4cff-c180-566cd7a03034" data-execution_count="34">
+<div class="sourceCode cell-code" id="cb45"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb45-1"><a href="#cb45-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Find all tags with class=&quot;noindent&quot; inside this div</span></span>
+<span id="cb45-2"><a href="#cb45-2" aria-hidden="true" tabindex="-1"></a><span class="co"># The first one is &quot;Term Typically Offered&quot;</span></span>
+<span id="cb45-3"><a href="#cb45-3" aria-hidden="true" tabindex="-1"></a>term <span class="op">=</span> extended_wrap.find(<span class="st">&quot;p&quot;</span>, {<span class="st">&quot;class&quot;</span>: <span class="st">&quot;noindent&quot;</span>})</span>
+<span id="cb45-4"><a href="#cb45-4" aria-hidden="true" tabindex="-1"></a>term_offered <span class="op">=</span> term.get_text(strip<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb45-5"><a href="#cb45-5" aria-hidden="true" tabindex="-1"></a>term_offered</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display">
+<pre><code>&#39;Term Typically Offered: F, W, SP&#39;</code></pre>
+</div>
+</div>
+<div id="cell-56" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;colab&quot;,&quot;value&quot;:{&quot;base_uri&quot;:&quot;https://localhost:8080/&quot;,&quot;height&quot;:206}}" data-outputid="643a0199-8154-4a87-ef2c-6ee1c388156e" data-execution_count="35">
+<div class="sourceCode cell-code" id="cb47"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb47-1"><a href="#cb47-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Now putting it all together</span></span>
+<span id="cb47-2"><a href="#cb47-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb47-3"><a href="#cb47-3" aria-hidden="true" tabindex="-1"></a>rows <span class="op">=</span> []</span>
+<span id="cb47-4"><a href="#cb47-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb47-5"><a href="#cb47-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Iterate over all courses</span></span>
+<span id="cb47-6"><a href="#cb47-6" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> course <span class="kw">in</span> soup.find_all(<span class="st">&quot;div&quot;</span>, {<span class="st">&quot;class&quot;</span>: <span class="st">&quot;courseblock&quot;</span>}):</span>
+<span id="cb47-7"><a href="#cb47-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb47-8"><a href="#cb47-8" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Find the course name</span></span>
+<span id="cb47-9"><a href="#cb47-9" aria-hidden="true" tabindex="-1"></a>    course_title <span class="op">=</span> course.find(<span class="st">&quot;p&quot;</span>, {<span class="st">&quot;class&quot;</span>: <span class="st">&quot;courseblocktitle&quot;</span>})</span>
+<span id="cb47-10"><a href="#cb47-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb47-11"><a href="#cb47-11" aria-hidden="true" tabindex="-1"></a>     <span class="co"># Remove the span with units, used the hints below to get this</span></span>
+<span id="cb47-12"><a href="#cb47-12" aria-hidden="true" tabindex="-1"></a>    span <span class="op">=</span> course_title.find(<span class="st">&quot;span&quot;</span>, {<span class="st">&quot;class&quot;</span>: <span class="st">&quot;courseblockhours&quot;</span>})</span>
+<span id="cb47-13"><a href="#cb47-13" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> span:</span>
+<span id="cb47-14"><a href="#cb47-14" aria-hidden="true" tabindex="-1"></a>        span.extract()</span>
+<span id="cb47-15"><a href="#cb47-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb47-16"><a href="#cb47-16" aria-hidden="true" tabindex="-1"></a>    course_name <span class="op">=</span> course_title.get_text(strip<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb47-17"><a href="#cb47-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb47-18"><a href="#cb47-18" aria-hidden="true" tabindex="-1"></a>    <span class="co">#F,W,S offering</span></span>
+<span id="cb47-19"><a href="#cb47-19" aria-hidden="true" tabindex="-1"></a>    extended_wrap <span class="op">=</span> course.find(<span class="st">&quot;div&quot;</span>, {<span class="st">&quot;class&quot;</span>: <span class="st">&quot;noindent courseextendedwrap&quot;</span>})</span>
+<span id="cb47-20"><a href="#cb47-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb47-21"><a href="#cb47-21" aria-hidden="true" tabindex="-1"></a>    <span class="co">#need the very first one to get term typically offered</span></span>
+<span id="cb47-22"><a href="#cb47-22" aria-hidden="true" tabindex="-1"></a>    term <span class="op">=</span> extended_wrap.find(<span class="st">&quot;p&quot;</span>, {<span class="st">&quot;class&quot;</span>: <span class="st">&quot;noindent&quot;</span>})</span>
+<span id="cb47-23"><a href="#cb47-23" aria-hidden="true" tabindex="-1"></a>    term_offered <span class="op">=</span> term.get_text(strip<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb47-24"><a href="#cb47-24" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb47-25"><a href="#cb47-25" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Append data</span></span>
+<span id="cb47-26"><a href="#cb47-26" aria-hidden="true" tabindex="-1"></a>    rows.append({</span>
+<span id="cb47-27"><a href="#cb47-27" aria-hidden="true" tabindex="-1"></a>        <span class="st">&quot;course&quot;</span>: course_name,</span>
+<span id="cb47-28"><a href="#cb47-28" aria-hidden="true" tabindex="-1"></a>        <span class="st">&quot;term_offered&quot;</span>: term_offered</span>
+<span id="cb47-29"><a href="#cb47-29" aria-hidden="true" tabindex="-1"></a>    })</span>
+<span id="cb47-30"><a href="#cb47-30" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb47-31"><a href="#cb47-31" aria-hidden="true" tabindex="-1"></a><span class="co">#DataFrame</span></span>
+<span id="cb47-32"><a href="#cb47-32" aria-hidden="true" tabindex="-1"></a>df_courses <span class="op">=</span> pd.DataFrame(rows)</span>
+<span id="cb47-33"><a href="#cb47-33" aria-hidden="true" tabindex="-1"></a>df_courses.head()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display">
 <div>
-<figure class="figure">
-<p><img role="img" src="data:image/png;base64,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smSJ9uzZI5vNVul9KNPS0jRnzhy1bdtWkrRv3z4tW7ZMBQUFF3wfytLSUiUmJuqBBx646PtQOhyO2ju5eiwwMFAREREqLCzk1oqfobf+jf76L3p7Yb99nA2e5/OB0tsIlNXjB5f/orf+jf76L3p7YQTK2uXTt7wBAADg+wiUAAAAMEKgBAAAgBECJQAAAIwQKAEAAGCEQAkAAAAjBEoAAAAYIVACAADACIESAAAARgiUAAAAMEKgBAAAgBECJQAAAIxYXC6Xy9tFoP5xOBxav369Bg4cqMjISG+XAw+it/6N/vovegtv4golLovD4dCKFSvkcDi8XQo8jN76N/rrv+gtvIlACQAAACMESgAAABghUOKyREZGKj09ned0/BC99W/013/RW3gTL8oBAACAEa5QAgAAwAiBEgAAAEYIlAAAADAS5O0CUL/MnDlTX3/9tQIDA2WxWBQdHa177rlHN9xwg7dLg4fs2LFDmzZtUn5+vkJCQtSiRQv1799ft9xyi7dLA3AeX331lV599VXl5eVJkpo3b65hw4bppptu8nJluFIQKFFj9957r+644w5VVFRoy5YtWrBggV577TUFBfHPqb5766239MYbb+i+++5Tp06dFBISov379+vDDz8kUNZzH3zwgTZt2qRjx44pNDRUN910k0aNGqWIiAhvlwZDpaWlmjdvnu69916lpKTo3LlzOnjwoAICuAmJusO/Nly2gIAApaSkqKSkRIWFhd4uB4ZKS0v1+uuva8KECerWrZtsNpsCAwPVoUMHPfjgg94uDwbeeustvfzyyxo2bJhWr16t5557Tk6nU9OmTVNJSYm3y4OhY8eOyel0qkePHgoMDFRISIjatWuntm3bers0XEEIlLhsTqdT2dnZuuqqq9SkSRNvlwNDX331lc6cOaMuXbp4uxR4UGlpqbKysjRu3Dh17txZwcHBatq0qSZPnqygoCC9/fbb3i4RhqKjoxUcHKxnnnlGu3fv1s8//+ztknAF4h4lauwvf/mLVq1apdOnTysgIECTJ09WYGCgt8uCoeLiYoWFhfHogp85cOCATp8+raSkpErrAwMDlZSUpD179mjIkCFeqg6eYLPZtHDhQm3YsEHLli3Tjz/+qLZt22rSpElq3ry5t8vDFYLfHKixsWPHup+hPHDggObNm6drrrlGrVq18nZpMNCoUSMVFRXp3LlzhEo/UlRUdN7/UYiIiFBRUZEXqoKntWjRQg899JAkqaCgQJmZmXr22Wf11FNPebkyXCm45Y3LFhAQoDZt2igqKkr79u3zdjkwdP3116tBgwb6+OOPvV0KPCgsLMz9Pwr/rLCwUGFhYV6oCrWpWbNm6tu3r/sV30BdIFDCyIEDB3TkyBHFxsZ6uxQYstlsGjFihJYvX66cnByVlZXJ6XRq//79WrJkibfLw2W67rrr1KBBA+3cubPS+oqKCu3cuVPt27f3UmXwlKNHj2rDhg364Ycf5HK5dPLkSW3evFmtW7f2dmm4gnBfCzX28ssva+XKlZKk8PBwjRgxQomJiV6uCp7Qr18/NWnSRBs3btTixYsVGhqq2NhY9e/f39ul4TLZbDYNGzZML730kqxWqzp27KiioiK9+uqrKikpUZ8+fbxdIgxZrVYdOnRIb7/9tkpKSmSz2dSuXTvdd9993i4NVxCLy+VyebsIAEDt2rZtmzZt2qTjx4/rzJkzuvbaazV16lRFR0d7uzQAfoArlABwBUhNTVVqaqok6ZNPPtHzzz+vM2fOeLkqAP6CK5QAcAX6+OOPVVhYqDvuuMPbpQDwAwRKAAAAGOFV3gAAADBCoAQAAIARAiUAAACMECgBAABghEAJAAAAIwRKAAAAGCFQAvAb27dvl8Vi0WeffVarx0lJSVHfvn1rZe4333xTFotFhw8frpX5AaA2ECgBAABghEAJAJeorKzM2yUAgE8iUAKoc7t27VJqaqrsdrsaN26sYcOG6fvvv5ckHT58WBaLRatWrVJ6errCw8N11VVX6emnn5YkrVmzRq1bt1ZYWJgGDBigkydPVpn/+++/14ABA2S329W8eXM98cQTlbYfOHBAQ4YMUYsWLWSz2dSmTRs988wzqqiocI/5tY5XXnlF6enpatq0qW6++eZqz6e8vFx33nmn4uPjdejQIUnS0aNHNWLECEVGRspqtep3v/udPv/880r7nT17VpMnT1aTJk3UuHFjjR07ViUlJZf99woA3kKgBFCndu3apZSUFDVu3FhvvPGGXnrpJe3evVv9+vWrNC4jI0NhYWFat26d0tLS9Oijj2r69Ol67rnn9NRTT2np0qXatm2bpk6dWuUY48aNU8uWLbVhwwaNGDFCs2bN0rJly9zbjx07ptatWyszM1N/+9vfNG7cOM2bN0/z58+vMteMGTNksVi0evVqLVq0qMr2U6dOqU+fPjp48KA++ugjtWrVSoWFherWrZv+8Y9/6IUXXtD69etlt9uVmprqDs6/zp2ZmalHH31Ua9eu1blz5zRr1iyTv14A8A4XANSh3/3ud66uXbu6Kioq3Ov279/vslgsrnfffdeVm5vrkuQaPHiwe/u5c+dczZo1c9ntdpfD4XCvnzJliis8PNy9/MEHH7gkuUaOHFnpmCNGjHDFxMS4nE5nlXoqKipcZ8+edS1YsMDVvHlz9/pf6+jdu3eVfZKTk119+vRxFRYWum699VZX+/btXQUFBe7ts2fPdjVu3LjSuvLycldMTIzr0UcfdblcLtePP/7oslqtrscee6zS3F27dnVJcuXm5p737xAAfA1XKAHUmdLSUuXk5OgPf/iDnE6nzp07p3Pnzql169Zq3ry5du/e7R7bs2dP99eBgYFKSEhQx44d1bRpU/f6f/3Xf9XJkyd16tSpSse56667Ki0PGDBAR48e1dGjRyX9cot6zpw5atWqlUJCQhQcHKxZs2bpxIkTVebq3bt3teficDiUkpIil8ul7du36+qrr3Zv27x5s7p3764mTZq4zzEwMFC33Xab+xz37dunsrKyKrUOHDjwon+PAOBrCJQA6kxhYaGcTqcefvhhBQcHV/pz/PhxHTlyxD02PDy80r4NGjSodp30S0D8rd+Gu98unzhxQpI0bdo0LVq0SOnp6frb3/6m3bt3KyMj45Lm+tXBgwf13//93xo6dKgiIiIqbXM4HNq0aVOVc1y9erX7HH+t5Z/nb9asWbXHAwBfFuTtAgBcOcLDw2WxWDRz5kz179+/yvbIyEiPHOe3zyn+drl58+aSpHXr1mn8+PGaNm2ae8y7775b7VwWi6Xa9V27dlXPnj31yCOPqEmTJho5cqR7W5MmTfTv//7v+tOf/lRlv5CQkEq1fP/994qOjnZvLygouOj5AYCvIVACqDN2u11dunTRV199Ve0LYCR55A29N27cWOlW8oYNGxQVFaWYmBhJv7z9z69XNyXJ6XRqzZo1NT7O5MmTVVZWpjFjxigkJERpaWmSfrld//rrr+v666+X3W6vdt927drJarVq48aNuvHGG93r169fX+M6AMDbCJQA6tSiRYuUmpqqwYMHa8iQIYqIiNDRo0e1ZcsWjRkzRvHx8cbH2LZtmx599FHdfvvt2rJli15//XUtXbpUAQG/POVz++23a8WKFWrTpo2uuuoqLV26VKdPn76sY82YMUNlZWUaMWKEQkND1a9fPz3yyCPKyspScnKyHnroIcXGxuqHH37QJ598oqioKD388MNq0qSJJkyYoIULF8pqtapTp076z//8T+Xl5RmfPwDUNZ6hBFCnunbtqh07dujUqVMaM2aMevfurXnz5slms6lVq1YeOcby5cv19ddf66677tJrr72mP/3pT5o4caJ7+wsvvKDk5GQ98MADuueee9SuXTvNnDnzso83b948PfTQQ0pLS9P777+vpk2b6uOPP1bHjh01bdo09erVSw8//LAOHz6szp07u/dbuHChJkyYoKeeekppaWmyWCznvXILAL7M4nK5XN4uAgAAAPUXVygBAABghEAJAAAAIwRKAAAAGCFQAgAAwAiBEgAAAEYIlAAAADBCoAQAAIARAiUAAACMECgBAABghEAJAAAAIwRKAAAAGCFQAgAAwAiBEgAAAEYIlAAAADBCoAQAAIARAiUAAACMECgBAABg5P8Cj9tZINatTnoAAAAASUVORK5CYII=" class="img-fluid figure-img"></p>
-</figure>
+
+
+<table class="dataframe caption-top table table-sm table-striped small" data-quarto-postprocess="true" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">course</th>
+<th data-quarto-table-cell-role="th">term_offered</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">0</td>
+<td>DATA 100. Data Science for All I.</td>
+<td>Term Typically Offered: F, W, SP</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">1</td>
+<td>DATA 301. Introduction to Data Science.</td>
+<td>Term Typically Offered: F, W, SP</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">2</td>
+<td>DATA 401. Data Science Process and Ethics.</td>
+<td>Term Typically Offered: F</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">3</td>
+<td>DATA 402. Mathematical Foundations of Data Sci...</td>
+<td>Term Typically Offered: F</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">4</td>
+<td>DATA 403. Data Science Projects Laboratory.</td>
+<td>Term Typically Offered: F</td>
+</tr>
+</tbody>
+</table>
+
 </div>
 </div>
 </div>
-<p>Pros: The stacked bar chart provides an immediate visual comparison of the embarkation port distributions across all three classes simultaneously. It is easier to see patterns in the visualization like how Southampton dominated 3rd class.</p>
-<p>Cons: Reading exact proportions from the visualization is difficult compared to the numerical tables. I can easily see the numbers in the tables.</p>
+<p>Hints:</p>
+<ul>
+<li>Each course is represented by a <code>&lt;div&gt;</code> with <code>class=courseblock</code>, so you can find all the courses with <code>soup.find_all(&quot;div&quot;, {&quot;class&quot;: &quot;courseblock&quot;})</code></li>
+<li>The course name is in a <code>&lt;p&gt;</code> tag with <code>class=courseblocktitle</code>, inside a <code>&lt;strong&gt;</code> tag. (Though I don’t think we need to find the strong tag here.)</li>
+<li>The term typically offered is in <code>&lt;p&gt;</code> tag with <code>class=noindent</code>. However, there are several tags with this class; term typically offered is the first one.</li>
+<li>If you want to use Beautiful Soup to remove the course units (e.g., 4 units), find the <code>&lt;span&gt;</code> tag within the course name tag and <code>.extract()</code> this span tag</li>
+</ul>
 </section>
 </section>
 
