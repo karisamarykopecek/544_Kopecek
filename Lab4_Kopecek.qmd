@@ -1,0 +1,434 @@
+---
+title: "Lab 4: Data is Delicious"
+author: Karisa Kopecek
+date: today
+format:
+  html:
+    embed-resources: true
+    echo: true
+    code-fold: true
+---
+
+```{python}
+
+import numpy as np
+import pandas as pd
+import requests
+from bs4 import BeautifulSoup
+from plotnine import *
+
+```
+
+## Question 1: Data from unstructured websites
+
+```{python}
+
+#search URL for the given plan number 209
+URL = "https://tastesbetterfromscratch.com/meal-plan-209/"
+#prevents blocking from website
+HEADERS = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"}
+
+response = requests.get(URL, headers=HEADERS)
+
+#Parse the HTML content of the search results page and store as soup
+soup = BeautifulSoup(response.text, "html.parser")
+
+```
+
+Note: I had to comment out some code after running it, because otherwise my document was really long, but I did test out this code as I was working on the assignment
+
+```{python}
+# Find all paragraphs with class "has-text-align-left" that contain meal plan entries
+meal_paragraphs = soup.find_all("p", class_="has-text-align-left")
+#meal_paragraphs 
+```
+
+```{python}
+# Look at first one
+parag = meal_paragraphs[0]
+#parag
+    
+```
+
+```{python}
+# Get the day
+day_tag = parag.find("strong")
+day = day_tag.text
+day
+```
+
+```{python}
+# Get the recipe name
+link_tag = parag.find("a")
+recipe_name = link_tag.text
+recipe_name
+```
+
+```{python}
+#get recipe link
+recipe_link = link_tag.get("href")
+#recipe_link
+```
+
+```{python}
+# Get the price
+price_text = parag.get_text()
+price = price_text.split("$")[1]
+price
+```
+
+```{python}
+# Now loop through all
+
+#first must set empty list
+#see above for what each line does
+rows = []
+
+for parag in meal_paragraphs:
+
+    day_tag = parag.find("strong")
+    day = day_tag.text
+    
+    link_tag = parag.find("a")
+    recipe_name = link_tag.text
+    recipe_link = link_tag.get("href")
+    
+    price_text = parag.get_text()
+    price = price_text.split("$")[1]
+    
+    #making whole table
+    rows.append({
+        "Day of the Week": day,
+        "Name of Recipe": recipe_name,
+        "Link to Recipe": recipe_link,
+        "Price of Recipe": price
+    })
+
+df_mealplan = pd.DataFrame(rows)
+df_mealplan
+```
+
+## Question 2: Data from an API
+
+```{python}
+# Get the Monday recipe name
+monday_recipe = df_mealplan[df_mealplan["Day of the Week"] == "Monday"]["Name of Recipe"].values[0]
+monday_recipe
+```
+
+```{python}
+#this is mostly code from the practice/in class activity
+url = "https://tasty.p.rapidapi.com/recipes/list"
+
+#added monday_recipe matches only
+querystring = {"from":"0","size":"100","q":monday_recipe}
+
+headers = {
+	"x-rapidapi-key": "713be9871amsh9ee352fe4fd9fa6p156283jsn319d1f346242",
+	"x-rapidapi-host": "tasty.p.rapidapi.com"
+}
+
+response = requests.get(url, headers=headers, params=querystring)
+
+monday_tasty_recipes = pd.json_normalize(response.json(), "results")
+
+# Convert to pandas dataframe and compile table of all recipes matching "Peanut Noodles"
+monday_tasty_recipes = pd.json_normalize(response.json(), "results")
+monday_tasty_recipes['name']
+
+```
+
+## Question 3: Automate it
+
+```{python}
+
+def get_weekly_plan(plan_number):
+
+    """
+    Scrapes a weekly meal plan from a specific website and given the plan number returns a DataFrame
+    
+    Parameter
+    ---------
+    plan_number : int or str
+        The identifier for the weekly meal plan to retrieve.
+    
+    Returns
+    -------
+    DataFrame
+        A DataFrame containing Day of the Week, Name of Recipe, Link to Recipe, and Price of Recipe.
+    """
+    
+    # Ensure the plan_number is a string or an integer.
+    if not isinstance(plan_number, (int, str)):
+        exit("Please provide the plan number as an integer or a string.")
+    
+    # Input validation make sure it is between 100 and 210
+    if not (100 <= plan_number <= 210):
+        exit("Please provide a plan number between 100 and 210")
+    
+    # Convert to string if it's an integer.
+    plan_number = str(plan_number)
+    
+    # Doing the same as before but for any given plan number
+    url = f"https://tastesbetterfromscratch.com/?s=meal+plan+{plan_number}"
+    headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"}
+    response = requests.get(url, headers=headers)
+    soup = BeautifulSoup(response.content, "html.parser")
+    
+    # Find the actual meal plan link from search results
+    meal_plan_link = soup.find("a", string=f"Meal Plan ({plan_number})")
+    
+    # Navigate to the article page, find the URL of the actual meal plan article
+    actual_url = meal_plan_link.get("href")
+    response = requests.get(actual_url, headers=headers)
+    soup = BeautifulSoup(response.content, "html.parser")
+    
+    # Scrape the data
+    # Finds all <p> (paragraph) tags on the page which are assumed to contain the meal details
+    meal_paragraphs = soup.find_all("p", class_="has-text-align-left")
+    
+    # This is where the meal plan data will be stored
+    rows = []
+    
+    # Loop through all meal paragraphs and extract all information
+    for parag in meal_paragraphs:
+        # Get the day
+        day_tag = parag.find("strong")
+        day = day_tag.text
+        
+        # Get the recipe name
+        link_tag = parag.find("a")
+        recipe_name = link_tag.text
+        
+        # Get recipe link
+        recipe_link = link_tag.get("href")
+        
+        # Get the price
+        price_text = parag.get_text()
+        price = price_text.split("$")[1]
+        
+        # Append all data to rows
+        rows.append({
+            "Day of the Week": day,
+            "Name of Recipe": recipe_name,
+            "Link to Recipe": recipe_link,
+            "Price of Recipe": price
+        })
+    
+    # Create and return DataFrame
+    df_mealplan = pd.DataFrame(rows)
+    return df_mealplan
+
+```
+
+```{python}
+#making sure it is returning recipe names for the week
+my_plan = get_weekly_plan(202)
+my_plan
+```
+
+
+```{python}
+
+def match_recipe(recipe_name):
+    """
+    Searches the Tasty API for recipes matching the given name and returns a DataFrame.
+
+    Parameter
+    ----------
+    recipe_name : str
+        The name or keyword of the recipe to search for.
+
+    Returns
+    -------
+    DataFrame
+        A DataFrame containing the names of matching recipes.
+    """
+    # Input validation
+    if not isinstance(recipe_name, str):
+        exit("provide recipe name as a string")
+
+    # this is mostly code from the practice/in class activity
+    url = "https://tasty.p.rapidapi.com/recipes/list"
+    # recipe_name matches only
+    querystring = {"from": "0", "size": "100", "q": recipe_name}
+    headers = {
+        "x-rapidapi-key": "713be9871amsh9ee352fe4fd9fa6p156283jsn319d1f346242",
+        "x-rapidapi-host": "tasty.p.rapidapi.com"
+    }
+    response = requests.get(url, headers=headers, params=querystring)
+
+    # Convert to pandas dataframe
+    tasty_recipes_df = pd.json_normalize(response.json(), "results")
+
+    if 'name' in tasty_recipes_df.columns:
+        # Define the columns to return: 'name' and 'nutrition.calories'
+        api_cols_to_return = ['name', 'nutrition.calories','Inspired_by_url',""]
+        
+        # Filter the list to include only columns that actually exist in the DataFrame
+        existing_api_cols = [col for col in api_cols_to_return if col in tasty_recipes_df.columns]
+        
+        # Return the DataFrame with the existing, desired API columns
+        return tasty_recipes_df[existing_api_cols]
+    else:
+        # If the 'name' column is missing, return an empty DataFrame 
+        return pd.DataFrame({'name': [], 'nutrition.calories': []})
+    
+```
+
+```{python}
+#check an example recipe string
+my_matches = match_recipe("Beef Noodle Soup")
+my_matches
+```
+
+
+```{python}
+
+def get_mealplan_data(plan_number):
+
+    """
+    Automates the process of scraping a weekly meal plan, querying the Tasty API for each recipe.
+    
+    Parameter
+    ---------
+    plan_number : int or str
+        The identifier for the weekly meal plan
+    
+    Returns
+    -------
+    DataFrame
+        A single DataFrame containing all matching recipe names with other columns included too
+    """
+    
+    # Scrape the weekly meal plan and return a DataFrame
+    df_mealplan = get_weekly_plan(plan_number)
+    
+    # Empty list to hold the DataFrames for each recipe name from API
+    all_matches = []
+    
+    # Iterate through each recipe using the index
+    for i in range(len(df_mealplan)):
+        recipe_name = df_mealplan["Name of Recipe"][i]
+        day = df_mealplan["Day of the Week"][i]
+        original_link = df_mealplan["Link to Recipe"][i]
+        price = df_mealplan["Price of Recipe"][i]
+        
+        # Query the API for each recipe name, returns a DataFrame of results for each recipe
+        tasty_df = match_recipe(recipe_name)
+        
+        # Check if I received a non-empty DataFrame
+        if not tasty_df.empty:
+            # Add all the source info to the DataFrame 
+            tasty_df['Source_Recipe'] = recipe_name
+            tasty_df['Day_of_Week'] = day
+            tasty_df['Original_Link'] = original_link
+            tasty_df['Original_Price'] = price
+            
+            # Append the DataFrame to list
+            all_matches.append(tasty_df)
+        else:
+            exit("Dataframe empty")
+    
+    # Combine all individual DataFrames into one final dataset
+    final_df = pd.concat(all_matches, ignore_index=True)
+    return final_df
+```
+
+My final output: (see source_recipe for initial recipe key from meal plan website)
+```{python}
+df = get_mealplan_data(202)
+df.head(10)
+```
+
+```{python}
+df.tail(10)
+```
+
+## Question 4: Add a column with fuzzy matching
+
+```{python}
+
+# common meat terms if a recipe contains any of these terms in the title, it is not vegetarian.
+
+meat_terms = [
+    'chicken', 'beef', 'pork', 'bacon', 'ham', 
+    'sausage', 'turkey', 'lamb', 'meat', 'venison', 
+    'steak', 'ribs', 'salami', 'pepperoni', 'tuna', 
+    'salmon', 'cod', 'shrimp', 'fish', 'seafood', 'crab',
+    'clam', 'oyster', 'scallop', 'veal', 'mutton'
+]
+
+#making a function to make this easier since I've previously created a dataset which i can just add a column to
+def add_vegetarian_column(df):
+    """
+    Adds an 'is_vegetarian' column to the DataFrame based on the presence of meat terms in the 'name' column.
+
+    Parameter
+    ---------
+    df : DataFrame
+        The DataFrame returned by get_mealplan_data.
+
+    Returns
+    -------
+    DataFrame
+        The modified DataFrame with the 'is_vegetarian' column.
+    """
+
+    # Create a single pattern that matches any of the terms
+    pattern = r'|'.join(meat_terms)
+    
+    # Use str.contains() to check if the 'name' column contains any of the meat terms.
+    # True means "contains meat term" (NOT vegetarian).
+    # using .astype(str)to make sure names are in strings and .str.lower() for case-insensitivity
+    is_meat = df['name'].astype(str).str.lower().str.contains(pattern, na=False)
+    
+    # convert T or F to 0 or 1, is_meat = True = is_vegetarian = 0
+    df['is_vegetarian'] = np.where(is_meat, 0, 1)
+    
+    return df
+```
+
+```{python}
+df_with_veg_column = add_vegetarian_column(df)
+df_with_veg_column.head(10)
+```
+
+```{python}
+df_with_veg_column.tail(10)
+```
+
+## Question 5: Analyze
+
+```{python}
+
+# Clean up day names
+df_with_veg_column['Day_Clean'] = df_with_veg_column['Day_of_Week'].str.replace(':', '')
+
+# Filter for rows with calorie data
+df_plot = df_with_veg_column.dropna(subset=['nutrition.calories'])
+
+# Convert 0/1 to text for legend
+df_plot['Meal_Type'] = df_plot['is_vegetarian'].astype(str).replace({
+    '1': 'Vegetarian',
+    '0': 'Non-Vegetarian'
+})
+
+# Create bar chart
+nutrition_plot = (
+    ggplot(df_plot, aes(x='Day_Clean', y='nutrition.calories', fill='Meal_Type')) +
+    geom_col(position='dodge') +
+    labs(
+        title='Average Calories by Day - Meal Plan 202',
+        x='Day of the Week',
+        y='Calories',
+        fill='Meal Type'
+    ) +
+    theme_minimal()
+)
+
+nutrition_plot
+
+```
+
+Calories per day across the week peaked on Wednesday and overall the type of meal didn't seem to really affect the calorie outcome as much as one might expect.
