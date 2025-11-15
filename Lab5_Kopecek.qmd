@@ -1,0 +1,702 @@
+---
+title: "Lab 5: Insurance Costs"
+author: Karisa Kopecek
+date: today
+format:
+  html:
+    toc: true
+    toc-location: right
+    embed-resources: true
+    echo: true
+    code-fold: true
+---
+Please see table of contents for easy navigation
+
+# Importing Data/Setup
+
+```{python}
+
+import numpy as np
+import pandas as pd
+from plotnine import *
+from sklearn.linear_model import LinearRegression
+from sklearn.preprocessing import OneHotEncoder
+from sklearn.metrics import mean_squared_error, r2_score
+
+```
+
+# Part One: Data Exploration
+
+## 1 Read in the dataset, and display some summaries of the data
+
+```{python}
+
+data_dir = "https://www.dropbox.com/s/bocjjyo1ehr5auz/insurance_costs_1.csv?dl=1"  
+df = pd.read_csv(data_dir)
+df.head() #making sure code shows up
+
+```
+
+```{python}
+df.info()
+```
+
+```{python}
+df.describe()
+```
+
+```{python}
+#see the duplicates in the dataset
+df.duplicated().sum()
+df[df.duplicated(keep=False)]
+
+```
+
+```{python}
+#drop those duplicates
+df = df.drop_duplicates()
+```
+
+```{python}
+#missing values sum
+df.isnull().sum()
+```
+
+There is no missing data, so I don't need to handle it later on
+
+```{python}
+#check unique values, I checked each one but didn't want to print the output for each one, I didn't see anything concerning other than yes smoker has less values
+df['sex'].value_counts()
+
+```
+
+```{python}
+#making a plot of my target vairable to check for outliers, so that I can fix it if that is an issue
+(ggplot(df, aes(x='charges')) +
+ geom_histogram() +
+ labs(title='Charges graph', x='charges') +
+ theme_minimal())
+```
+
+
+## 2 Fix any concerns you have about the data.
+
+```{python}
+
+#making sure the nunber columns are numeric types 
+df['age'] = pd.to_numeric(df['age'])
+df['bmi'] = pd.to_numeric(df['bmi'])
+df['charges'] = pd.to_numeric(df['charges'])
+
+#Removing outliers past 55000 based on histogram from before (felt like charges past that were outliers and unreliable)
+df = df[df['charges'] < 55000]
+
+```
+
+See code above for other stuff I fixed, already removed duplicates earilier using: df = df.drop_duplicates()
+
+## 3 Make up to three plots comparing the response variable (charges) to one of the predictor variables. Briefly discuss each plot.
+
+
+```{python}
+#charges vs smoker
+(ggplot(df, aes(x='smoker', y='charges')) +
+ geom_boxplot() +
+ labs(title='Insurance Charges Vs Smoker (yes or no)', x='Smoker', y='Charges') +
+ theme_minimal())
+```
+
+
+Discuss: This is a boxplot showing that smokers are generally getting charged more. Non smokers have lower charges on average. 
+
+```{python}
+#charges vs age
+(ggplot(df, aes(x='age', y='charges')) +
+ geom_point() +
+ geom_smooth() +
+ labs(title='Insurance Charges Vs Age', x='Age', y='Charges') +
+ theme_minimal())
+```
+
+
+Discuss: As the person's age increases, the charges also increase. This is a scatterplot with a trendline showing that in general charges increase at a constant rate as age goes up (there are a lot of exceptions to this which makes sense as some people at each age randomly have a higher charge).
+
+```{python}
+#charges vs BMI
+(ggplot(df, aes(x='bmi', y='charges')) +
+ geom_point() +
+ labs(title='Insurance Charges Vs BMI', x='BMI', y='Charges') +
+ theme_minimal())
+```
+
+
+Discuss: This graph is a scatterplot showing that as BMI increases the charges seem to be mostly random. There isn't a clear trend for charges, charges may slightly increase with a higher BMI, but this isn't a general rule based on the graph. 
+
+# Part Two: Simple Linear Models
+
+## 1 Construct a simple linear model to predict the insurance charges from the beneficiary’s age. Discuss the model fit, and interpret the coefficient estimates.
+
+I don't need train/test split because I'm only working with the original data and fitting and evaluating on the same dataset. 
+
+```{python}
+
+y = df['charges']
+X1 = df[['age']]
+
+#linear regression model
+model1 = LinearRegression()
+model1.fit(X1, y)
+
+#coefficients
+model1.coef_, model1.intercept_
+```
+
+```{python}
+#getting mse and r2 for later, see dataframe later on for this summarized for each model
+y_pred1 = model1.predict(X1)
+mse1 = mean_squared_error(y, y_pred1)
+r2_1 = r2_score(y, y_pred1)
+mse1, r2_1
+```
+
+model fit: R squared value of 0.103 shows that 10.3% of the variance in insurance charges is explained by age (this is not a very good model fit as not much variation explained by age)
+
+coefficient estimates: Insurance charges increase by approximately $230 for every year you go up in age (your starting charge is approximately $3491).
+
+## 2 Make a model that also incorporates the variable sex. Report your results.
+
+```{python}
+y = df['charges']
+X = df[['age', 'sex']]
+
+# one hot encode the categorical features
+enc = OneHotEncoder()
+
+X2 = enc.fit_transform(X)
+
+#regression model
+model2 = LinearRegression()
+model2.fit(X2, y)
+
+model2.coef_, model2.intercept_
+```
+
+
+```{python}
+y_pred2 = model2.predict(X2)
+mse2 = mean_squared_error(y, y_pred2)
+r2_2 = r2_score(y, y_pred2)
+mse2, r2_2
+```
+
+model fit: R squared value of 0.217 shows that 21.7% of the variance in insurance charges is explained by age and sex (this is a better model fit than before)
+
+coefficient estimates: Your predicted starting charge is $12935. Insurance charges increase or decrease by different values depending on different age and sex combos.
+
+## 3 Now make a model that does not include sex, but does include smoker. Report your results.
+
+
+```{python}
+y = df['charges']
+X = df[['age', 'smoker']]
+
+# one hot encode the categorical features
+enc = OneHotEncoder()
+
+X3 = enc.fit_transform(X)
+
+#regression model
+model3 = LinearRegression()
+model3.fit(X3, y)
+
+model3.coef_, model3.intercept_
+```
+
+```{python}
+y_pred3 = model3.predict(X3)
+mse3 = mean_squared_error(y, y_pred3)
+r2_3 = r2_score(y, y_pred3)
+mse3, r2_3
+```
+
+model fit: R squared value of 0.797 shows that 79.7% of the variance in insurance charges is explained by age and whether the person was a smoker or not (this is a better model fit than before and the best model fit overall)
+
+coefficient estimates: Your predicted starting charge is $19878. Insurance charges increase or decrease by different values depending on different age and smoking or not Scombos.
+
+## 4 Which model (Q2 or Q3) do you think better fits the data? Justify your answer by calculating the MSE for each model, and also by comparing R-squared values.
+
+creating a dataframe to compare all of them more easily: 
+Realized I only needed 2 and 3 afterwards
+
+```{python}
+results = pd.DataFrame({
+    'Model': ['AgeOnly', 'AgeAndSex', 'AgeAndSmoker'],
+    'MSE': [mse1, mse2, mse3],
+    'R-squared': [r2_1, r2_2, r2_3]
+})
+
+results
+```
+
+Based on the table Q3 (AgeAndSmoker) is the model that best fits the data. The MSE for that model is the lowest meaning the Q3 model's predictions are closer to the actual values and it is more accurate. Also, the Q3 model has the highest R^2 value showing that about 80% of the variance in insurance charges can be explained using the Q3 model, which is a higher and better value than the other two models. 
+
+# Part Three: Multiple Linear Models
+
+## 1 Fit a model that uses age and bmi as predictors. (Do not include an interaction term, age*bmi, between these two.) Report your results. How does the MSE compare to the model in Part Two Q1? How does the R-squared compare?
+
+I don't need train/test split because I'm only working with the original data and fitting and evaluating on the same dataset. 
+
+```{python}
+y = df['charges']
+X = df[['age', 'bmi']]
+
+#linear regression model
+model = LinearRegression()
+model.fit(X, y)
+
+model.coef_, model.intercept_
+
+```
+
+```{python}
+y_pred = model.predict(X)
+mse_b = mean_squared_error(y, y_pred)
+r2_b = r2_score(y, y_pred)
+
+mse_b, r2_b
+```
+
+
+The R2 is even slightly higher than number 1 and the MSE is slightly lower. 
+
+## 2 Perhaps the relationships are not linear. Fit a model that uses age and age^2 as predictors. How do the MSE and R-squared compare to the model in P2 Q1?
+
+```{python}
+df['age_squared'] = df['age'] ** 2
+
+y = df['charges']
+X = df[['age', 'age_squared']]
+
+#linear regression model
+model_poly = LinearRegression()
+model_poly.fit(X, y)
+
+model_poly.coef_, model_poly.intercept_
+
+```
+
+```{python}
+y_pred = model_poly.predict(X)
+mse_p = mean_squared_error(y, y_pred)
+r2_p = r2_score(y, y_pred)
+
+mse_p, r2_p
+```
+
+
+The R2 and MSE are almost the same as in part 2 Q1, R2 is very very slightly higher and MSE is very very slightly lower. 
+
+## 3 Fit a polynomial model of degree 4. How do the MSE and R-squared compare to the model in P2 Q1?
+
+```{python}
+
+df['age_squared'] = df['age'] ** 2
+df['age_cube'] = df['age'] ** 3
+df['age_4'] = df['age'] ** 4
+df['bmi_squared'] = df['bmi'] ** 2
+df['bmi_cube'] = df['bmi'] ** 3
+df['bmi_4'] = df['bmi'] ** 4
+
+degree4_features = ['age', 'age_squared', 'age_cube', 'age_4',
+                    'bmi', 'bmi_squared', 'bmi_cube', 'bmi_4']
+
+degree4_model = LinearRegression()
+degree4_model.fit(
+    X=df[degree4_features],
+    y=df['charges']
+)
+
+degree4_model.coef_, degree4_model.intercept_
+
+```
+
+```{python}
+y_pred = degree4_model.predict(df[degree4_features])
+mse_4 = mean_squared_error(df['charges'], y_pred)
+r2_4 = r2_score(df['charges'], y_pred)
+
+mse_4, r2_4
+```
+
+
+The R2 is higher and the RMSE is lower. 
+
+
+## 4 Fit a polynomial model of degree 12. How do the MSE and R-squared compare to the model in P2 Q1?
+
+```{python}
+df['age_squared'] = df['age'] ** 2
+df['age_cube'] = df['age'] ** 3
+df['age_4'] = df['age'] ** 4
+df['age_5'] = df['age'] ** 5
+df['age_6'] = df['age'] ** 6
+df['age_7'] = df['age'] ** 7
+df['age_8'] = df['age'] ** 8
+df['age_9'] = df['age'] ** 9
+df['age_10'] = df['age'] ** 10
+df['age_11'] = df['age'] ** 11
+df['age_12'] = df['age'] ** 12
+
+df['bmi_squared'] = df['bmi'] ** 2
+df['bmi_cube'] = df['bmi'] ** 3
+df['bmi_4'] = df['bmi'] ** 4
+df['bmi_5'] = df['bmi'] ** 5
+df['bmi_6'] = df['bmi'] ** 6
+df['bmi_7'] = df['bmi'] ** 7
+df['bmi_8'] = df['bmi'] ** 8
+df['bmi_9'] = df['bmi'] ** 9
+df['bmi_10'] = df['bmi'] ** 10
+df['bmi_11'] = df['bmi'] ** 11
+df['bmi_12'] = df['bmi'] ** 12
+
+degree12_features = ['age', 'age_squared', 'age_cube', 'age_4', 'age_5', 'age_6',
+                     'age_7', 'age_8', 'age_9', 'age_10', 'age_11', 'age_12',
+                     'bmi', 'bmi_squared', 'bmi_cube', 'bmi_4', 'bmi_5', 'bmi_6',
+                     'bmi_7', 'bmi_8', 'bmi_9', 'bmi_10', 'bmi_11', 'bmi_12']
+
+degree12_model = LinearRegression()
+degree12_model.fit(
+    X=df[degree12_features],
+    y=df['charges']
+)
+
+degree12_model.coef_, degree12_model.intercept_
+
+```
+
+```{python}
+y_pred = degree12_model.predict(df[degree12_features])
+mse_12 = mean_squared_error(df['charges'], y_pred)
+r2_12 = r2_score(df['charges'], y_pred)
+
+mse_12, r2_12
+```
+
+The R2 is much higher and the MSE is much lower. 
+
+## 5 According to the MSE and R-squared, which is the best model? Do you agree that this is indeed the “best” model? Why or why not?
+
+```{python}
+results = pd.DataFrame({
+    'Model': ['AgeAndBmi', 'AgeAndAge^2', 'degree4', 'degree12'],
+    'MSE': [mse_b, mse_p, mse_4, mse_12],
+    'R-squared': [r2_b, r2_p, r2_4, r2_12]
+})
+
+results
+```
+
+The best model is the degree 12 model by MSE and R2 with the lowest MSE and highest R-Squared. I personally don't agree this is the best because it isn't very significantly higher than other models and with all of the different features going into the model, I think this model may be very prone to overfitting the data. I would choose a model I think is good and will generalize to new data, I would probably choose degree4 or AgeandAge^2.  
+
+## 6 Plot the predictions from your model in Q4 as a line plot on top of the scatterplot of your original data.
+
+
+```{python}
+
+X_new = pd.DataFrame() 
+#wanted the graph to only show the correct X axis labels (from the min x to the max x)
+X_new["age"] = np.linspace(df["age"].min(), df["age"].max(), num=1000)
+X_new["age_squared"] = X_new["age"] ** 2
+X_new["age_cube"] = X_new["age"] ** 3
+X_new["age_4"] = X_new["age"] ** 4
+X_new["age_5"] = X_new["age"] ** 5
+X_new["age_6"] = X_new["age"] ** 6
+X_new["age_7"] = X_new["age"] ** 7
+X_new["age_8"] = X_new["age"] ** 8
+X_new["age_9"] = X_new["age"] ** 9
+X_new["age_10"] = X_new["age"] ** 10
+X_new["age_11"] = X_new["age"] ** 11
+X_new["age_12"] = X_new["age"] ** 12
+
+X_new["bmi"] = df["bmi"].mean()
+X_new["bmi_squared"] = X_new["bmi"] ** 2
+X_new["bmi_cube"] = X_new["bmi"] ** 3
+X_new["bmi_4"] = X_new["bmi"] ** 4
+X_new["bmi_5"] = X_new["bmi"] ** 5
+X_new["bmi_6"] = X_new["bmi"] ** 6
+X_new["bmi_7"] = X_new["bmi"] ** 7
+X_new["bmi_8"] = X_new["bmi"] ** 8
+X_new["bmi_9"] = X_new["bmi"] ** 9
+X_new["bmi_10"] = X_new["bmi"] ** 10
+X_new["bmi_11"] = X_new["bmi"] ** 11
+X_new["bmi_12"] = X_new["bmi"] ** 12
+
+y_new_ = pd.Series(
+    degree12_model.predict(X_new[degree12_features]),
+    index=X_new["age"]
+)
+
+df.plot.scatter(x="age", y="charges")
+y_new_.plot.line(c="orange");
+
+
+```
+
+# Part Four: New Data
+
+## read in data
+
+```{python}
+data_dir = "https://www.dropbox.com/s/sky86agc4s8c6qe/insurance_costs_2.csv?dl=1"  
+df2 = pd.read_csv(data_dir)
+df2.head() #making sure code shows up
+
+```
+
+## Only age as a predictor.
+
+### fit the model on the original data.
+
+Now, I need training and testing data because I am predicting on new data
+
+```{python}
+
+X_train = df[['age']]
+y_train = df['charges']
+X_test = df2[['age']]
+y_test = df2['charges']
+
+model1 = LinearRegression()
+model1.fit(X_train, y_train)
+
+```
+
+### use the fitted model to predict on the new data.
+
+```{python}
+y_pred1 = model1.predict(X_test)
+mse1 = mean_squared_error(y_test, y_pred1)
+```
+
+## age and bmi as a predictor.
+
+### fit the model on the original data.
+
+```{python}
+X_train = df[['age', 'bmi']]
+y_train = df['charges']
+X_test = df2[['age', 'bmi']]
+y_test = df2['charges']
+
+model2 = LinearRegression()
+model2.fit(X_train, y_train)
+
+```
+
+### use the fitted model to predict on the new data.
+
+```{python}
+y_pred2 = model2.predict(X_test)
+mse2 = mean_squared_error(y_test, y_pred2)
+```
+
+
+## age, bmi, and smoker as predictors (no interaction terms)
+
+### fit the model on the original data.
+
+```{python}
+X_train = df[['age', 'bmi', 'smoker']]
+y_train = df['charges']
+X_test = df2[['age', 'bmi', 'smoker']]
+y_test = df2['charges']
+
+#have to change smoker into a dummy variable since it is categorical
+#had to include drop_first otherwise got error
+X_train_encoded = pd.get_dummies(X_train, columns=['smoker'], drop_first=True)
+X_test_encoded = pd.get_dummies(X_test, columns=['smoker'], drop_first=True)
+
+model3 = LinearRegression()
+model3.fit(X_train_encoded, y_train)
+
+```
+
+### use the fitted model to predict on the new data.
+
+```{python}
+y_pred3 = model3.predict(X_test_encoded)
+mse3 = mean_squared_error(y_test, y_pred3)
+```
+
+
+## age, and bmi, with both quantitative variables having an interaction term with smoker (i.e. the formula ~ (age + bmi):smoker)
+
+### fit the model on the original data.
+
+```{python}
+
+#I did model 5 before this one, see model 5 first as there is more explanation
+
+X_train = df[['age', 'bmi', 'smoker']]
+y_train = df['charges']
+X_test = df2[['age', 'bmi', 'smoker']]
+y_test = df2['charges']
+
+X_train_encoded = pd.get_dummies(X_train, columns=['smoker'], drop_first=True)
+X_test_encoded = pd.get_dummies(X_test, columns=['smoker'], drop_first=True)
+
+#adding the interaction terms
+
+# age * smoker interaction term
+X_train_encoded['age:smoker_yes'] = X_train_encoded['age'].values * X_train_encoded['smoker_yes'].values
+
+# bmi * smoker interaction
+X_train_encoded['bmi:smoker_yes'] = X_train_encoded['bmi'].values * X_train_encoded['smoker_yes'].values
+
+# same for test data
+X_test_encoded['age:smoker_yes'] = X_test_encoded['age'].values * X_test_encoded['smoker_yes'].values
+X_test_encoded['bmi:smoker_yes'] = X_test_encoded['bmi'].values * X_test_encoded['smoker_yes'].values
+
+#drop smoker_yes column so it is not a predictor
+X_train_encoded = X_train_encoded.drop(columns=['smoker_yes'])
+X_test_encoded = X_test_encoded.drop(columns=['smoker_yes'])
+
+#four final columns: age, bmi, age:smoker_yes (interaction), bmi:smoker_yes (interaction)
+
+model4 = LinearRegression()
+model4.fit(X_train_encoded, y_train)
+
+```
+
+### use the fitted model to predict on the new data.
+
+```{python}
+y_pred4 = model4.predict(X_test_encoded)
+mse4 = mean_squared_error(y_test, y_pred4)
+```
+
+
+## age, bmi, and smokeras predictors, with both quantitative variables having an interaction term with smoker (i.e. the formula ~ (age + bmi)*smoker)
+
+
+### fit the model on the original data.
+
+```{python}
+X_train = df[['age', 'bmi', 'smoker']]
+y_train = df['charges']
+X_test = df2[['age', 'bmi', 'smoker']]
+y_test = df2['charges']
+
+
+X_train_encoded = pd.get_dummies(X_train, columns=['smoker'], drop_first=True)
+X_test_encoded = pd.get_dummies(X_test, columns=['smoker'], drop_first=True)
+
+#So far, 3 columns with age, bmi, yes or no smoker
+
+#now adding the interaction terms
+
+#age * smoker interaction term
+#multiply the age column by the smoker_yes column, .values extracts just the numbers
+X_train_encoded['age:smoker_yes'] = X_train_encoded['age'].values * X_train_encoded['smoker_yes'].values
+# ex: yes smoker then age * 1 = age value
+
+#bmi * smoker interaction
+X_train_encoded['bmi:smoker_yes'] = X_train_encoded['bmi'].values * X_train_encoded['smoker_yes'].values
+#resukt is same as before but with BMI
+
+#same for test data
+X_test_encoded['age:smoker_yes'] = X_test_encoded['age'].values * X_test_encoded['smoker_yes'].values
+X_test_encoded['bmi:smoker_yes'] = X_test_encoded['bmi'].values * X_test_encoded['smoker_yes'].values
+
+#5 columns: age, bmi, smoker yes or no, age:smoker_yes (interaction), bmi:smoker_yes (interaction)
+
+model5 = LinearRegression()
+model5.fit(X_train_encoded, y_train)
+```
+
+### use the fitted model to predict on the new data.
+
+```{python}
+y_pred5 = model5.predict(X_test_encoded)
+mse5 = mean_squared_error(y_test, y_pred5)
+```
+
+## Report the MSE for each model’s new predictions. Based on this, which is the best model to use?
+
+```{python}
+results = pd.DataFrame({
+    'Model': ['AgeOnly', 'AgeAndBMI', 'AgeBMISmoker', 
+              'AgeBmi(Age+BMI):Smoker', 'SmokerAgeBMIAnd(Age+BMI)*Smoker'],
+    'MSE': [mse1, mse2, mse3, mse4, mse5]
+})
+
+results
+```
+
+The best model to use is SmokerAgeBMIAnd(Age+BMI)*Smoker
+
+## Make a plot showing the residuals of your final chosen model.
+
+```{python}
+#residuals for Model 5 (actual-predicted)
+residuals = y_test - y_pred5
+
+(ggplot() +
+ geom_point(aes(x=range(len(residuals)), y=residuals)) +
+ geom_hline(yintercept=0, color='blue', linetype='dashed') +
+ labs(x='Observation Number', y='Residuals', title='Model 5 Residuals'))
+
+
+```
+
+# Part Five: Full Exploration
+
+## Using any variables in this dataset, and any polynomial of those variables, find the model that best predicts on the new data after being fit on the original data.
+
+```{python}
+#As I saw in the graphs when we explored the data, smoker and age both seemed like good predictors based on the graphs (not so much bmi, but when I tried it without BMI my MSE got way higher, so I had to include it)
+
+# interaction terms with smoker also did well in model 4 and 5 from above, so i took the best proforming model from above (model 5) and added in more interactions and saw that the following interactions gave a better MSE
+
+#I also found that squaring age gave a better MSE as well 
+#I chose not to use sex or location or other variables because the moreI added in, the worse the MSE got
+
+#training, copy of df to avoid messing with original and squaring age
+X_train = df[['age', 'bmi', 'smoker']].copy()
+X_train['age_sq'] = X_train['age'] ** 2
+X_train_encoded = pd.get_dummies(X_train, columns=['smoker'], drop_first=True)
+
+# 3 way interaction (tested a bunch of different ones and this came out with the best MSE)
+X_train_encoded['age:smoker_yes'] = X_train_encoded['age'].values * X_train_encoded['smoker_yes'].values
+X_train_encoded['bmi:smoker_yes'] = X_train_encoded['bmi'].values * X_train_encoded['smoker_yes'].values
+X_train_encoded['age:bmi:smoker_yes'] = X_train_encoded['age'].values * X_train_encoded['bmi'].values * X_train_encoded['smoker_yes'].values
+
+#testing
+X_test = df2[['age', 'bmi', 'smoker']].copy()
+X_test['age_sq'] = X_test['age'] ** 2
+X_test_encoded = pd.get_dummies(X_test, columns=['smoker'], drop_first=True)
+
+X_test_encoded['age:smoker_yes'] = X_test_encoded['age'].values * X_test_encoded['smoker_yes'].values
+X_test_encoded['bmi:smoker_yes'] = X_test_encoded['bmi'].values * X_test_encoded['smoker_yes'].values
+X_test_encoded['age:bmi:smoker_yes'] = X_test_encoded['age'].values * X_test_encoded['bmi'].values * X_test_encoded['smoker_yes'].values
+
+model = LinearRegression()
+model.fit(X_train_encoded, df['charges'])
+y_pred = model.predict(X_test_encoded)
+mse = mean_squared_error(df2['charges'], y_pred)
+mse
+
+```
+
+## Make a plot showing the residuals of your final chosen model.
+
+
+```{python}
+residuals = df2['charges'] - y_pred
+
+(ggplot() +
+ geom_point(aes(x=range(len(residuals)), y=residuals)) +
+ geom_hline(yintercept=0, color='blue', linetype='dashed') +
+ labs(x='Observation Number', y='Residuals', title='Final Model Residuals'))
+```
+

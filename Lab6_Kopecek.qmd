@@ -1,0 +1,710 @@
+---
+title: "Lab 6: Variable Selection and Regularization"
+author: Karisa Kopecek
+date: today
+format:
+  html:
+    toc: true
+    toc-location: right
+    embed-resources: true
+    echo: true
+    code-fold: true
+---
+
+# Cleaning data
+
+```{python}
+import numpy as np
+import pandas as pd
+from plotnine import *
+from sklearn.linear_model import LinearRegression
+from sklearn.preprocessing import OneHotEncoder
+from sklearn.metrics import mean_squared_error, r2_score
+from sklearn.pipeline import Pipeline
+from sklearn.compose import make_column_selector, ColumnTransformer
+from sklearn.preprocessing import StandardScaler, OneHotEncoder, PolynomialFeatures
+from sklearn.linear_model import LinearRegression, Ridge, Lasso, ElasticNet
+from sklearn.model_selection import train_test_split, cross_val_score, GridSearchCV
+
+```
+
+```{python}
+data_dir = "Data/Hitters.csv" 
+df = pd.read_csv(data_dir)
+df.head() #making sure code shows up
+```
+
+```{python}
+df.info()
+```
+
+```{python}
+df.describe()
+```
+
+```{python}
+#see the duplicates in the dataset
+df.duplicated().sum()
+df[df.duplicated(keep=False)]
+```
+
+removed duplicates 
+
+```{python}
+#drop those duplicates
+df = df.drop_duplicates()
+```
+
+```{python}
+#missing values sum
+df.isnull().sum()
+```
+
+removed rows missing salary
+```{python}
+#remove rows with missing salary
+df = df.dropna(subset=['Salary'])
+#check that it worked, ran this earlier when working
+#df.isnull().sum()
+```
+
+```{python}
+#making a plot of my target vairable to check for outliers, so that I can fix it if that is an issue
+(ggplot(df, aes(x='Salary')) +
+ geom_histogram() +
+ labs(title='Salary graph', x='Salary') +
+ theme_minimal())
+```
+
+Removed salaries past 2000 because those were outliers and seemed unreliable
+```{python}
+#Removing outliers past 2000 based on histogram from before (felt like salaries past that were outliers and unreliable)
+df = df[df['Salary'] < 2000]
+```
+
+```{python}
+#all columns except salary
+X = df.drop(["Salary"], axis=1)
+#the salary column
+y = df["Salary"]
+```
+
+```{python}
+
+#column transformer setup based on instructions/helpful notes
+
+#dummify is applying one-hot encoding to all object type columns from above (sparse_output=False returns a regular array and handle_unknown='ignore' ignores categories not seen during training 
+ct = ColumnTransformer(
+    [("dummify", OneHotEncoder(sparse_output=False, handle_unknown='ignore'),
+         make_column_selector(dtype_include=object)),
+        ("standardize", StandardScaler(), #Applies standard scaling (mean = 0 and st. dev = 1) to all numeric columns from above
+         make_column_selector(dtype_include=np.number)) #picks out all the numeric columns
+    ],
+    remainder="passthrough" #If there are any columns not selected by either transformer, they’re passed through unchanged not dropped
+)
+```
+
+# Part 1: Different Model Specs 
+
+## a. regression without regularization
+
+Create a pipeline that includes all the columns as predictors for Salary, and performs ordinary linear regression
+
+```{python}
+#two step pipeline, fits the column tranformer from above and then runs linear regression 
+lr_pipeline = Pipeline(
+    [("preprocessing", ct),
+     ("linear_regression", LinearRegression())]
+)
+
+```
+
+Fit this pipeline to the full dataset, and interpret a few of the most important coefficients.
+
+```{python}
+#passing the right columns to the pipline and fitting pipline to all the data
+lr_fitted = lr_pipeline.fit(X, y)
+
+#coefficients for interpretation
+#get_feature_names_out() returns the names of all transformed features like all the dummy variables
+feature_names = lr_fitted.named_steps['preprocessing'].get_feature_names_out()
+lr_coef = lr_fitted.named_steps['linear_regression'].coef_ #gives the weights, how much each coef predicts salary
+
+#pairing the above together in a series to get which features have the biggest positive or negative effects on the target
+the_series = pd.Series(lr_coef, index=feature_names)
+
+# Sort by absolute value (most to least important)
+series_sorted = the_series.sort_values(key=abs, ascending=False)
+
+series_sorted
+```
+
+The largest coefficient is for Career Runs (CRuns) which is therefore the most important in predicting salary. This is the largest positive coefficient which indicates that players who have scored more career runs tend to earn higher salaries. 
+
+The next most influential variable (Hits) also has a strong positive relationship with salary, showing that players who get more hits are paid higher. Similarly, Career RBIs (CRBI) positively affect salary (driving in runs over a career also boosts compensation).
+
+In contrast, Career At Bats (CAtBat) and At Bat (AtBat) both have large negative coefficients, implying that having more at bats is associated with lower salaries. Basically, just having a lot of playing time isn't good unless you are making good plays/hits etc.
+
+
+Use cross-validation to estimate the MSE you would expect if you used this pipeline to predict 1989 salaries.
+
+```{python}
+
+# Cross-validate for MSE
+
+# Run 5-fold cross-validation
+my_mse_scores = -cross_val_score(lr_pipeline, X, y, 
+    cv=5, 
+    scoring='neg_mean_squared_error'
+)
+
+#the average/expected MSE across folds
+expected_mse = np.mean(my_mse_scores)
+expected_mse
+
+```
+
+
+## b. ridge regression 
+
+Create a pipeline that includes all the columns as predictors for Salary, and performs ordinary ridge regression
+
+```{python}
+ridge_pipeline = Pipeline(
+    [("preprocessing", ct),
+     ("ridge_regression", Ridge())]
+)
+```
+
+Use cross-validation to tune the (regularization) hyperparameter. Fit the pipeline with your chosen parameter to the full dataset, and interpret a few of the most important coefficients.
+
+```{python}
+# Tune hyperparameter
+# possible alpha values 
+alphas = {'ridge_regression__alpha': np.array([100, 10, 1, 0.1, 0.01])}
+
+# Takes pipeline, runs 5-fold CV for each alpha, gets MSE, finds alpha that performs best
+ridge_grid = GridSearchCV(ridge_pipeline, param_grid=alphas, cv=5, scoring='neg_mean_squared_error')
+ridge_fitted = ridge_grid.fit(X, y)
+
+# Get the best Ridge model
+best_ridge = ridge_fitted.best_estimator_
+
+# Get feature names from preprocessing
+feature_names = best_ridge.named_steps['preprocessing'].get_feature_names_out()
+
+# Get coefficients from the Ridge model
+ridge_coef = best_ridge.named_steps['ridge_regression'].coef_
+
+# Pair them into a Series for interpretation
+the_series = pd.Series(ridge_coef, index=feature_names)
+
+# Sort by absolute value (most to least important)
+series_sorted2 = the_series.sort_values(key=abs, ascending=False)
+
+series_sorted2
+
+```
+
+The most important predictor of salary for this model is PutOuts, indicating that players who record more outs tend to earn higher salaries. Hits is the next most important and has a large positive coefficient, showing that players who get more hits are paid more. Walks also positively influences salary, so players who are good at getting on base are rewarded. Career Hits (CHits) and Career Runs (CRuns) also both have strong positive effects, showing that overall for the top influencial variables preforming well on offense and defence is a good predictor or salary. This model overall is making the coefficients smaller. 
+
+
+Report the MSE you would expect if you used this pipeline to predict 1989 salaries.
+
+```{python}
+ridge_cv_scores = cross_val_score(
+    ridge_pipeline,  # your Ridge pipeline
+    X,
+    y,
+    cv=5,
+    scoring='neg_mean_squared_error'
+)
+
+mse_scores = -ridge_cv_scores
+
+#expected/mean MSE
+expected_mse = np.mean(mse_scores)
+expected_mse
+```
+
+## c. lasso regression
+
+Create a pipeline that includes all the columns as predictors for Salary, and performs ordinary ridge regression
+
+
+```{python}
+lasso_pipeline = Pipeline(
+    [("preprocessing", ct),
+     ("lasso_regression", Lasso())]
+)
+```
+
+Use cross-validation to tune the (regularization) hyperparameter. Fit the pipeline with your chosen parameter to the full dataset, and interpret a few of the most important coefficients.
+
+```{python}
+alphas = {'lasso_regression__alpha': np.array([100, 10, 1, 0.1, 0.01])}
+lasso_grid = GridSearchCV(lasso_pipeline, param_grid=alphas, cv=5, scoring='neg_mean_squared_error')
+lasso_fitted = lasso_grid.fit(X, y)
+
+# Best pipeline and its alpha
+best_lasso = lasso_fitted.best_estimator_
+best_alpha = lasso_fitted.best_params_['lasso_regression__alpha']
+
+# Feature names and coefficients
+feature_names = best_lasso.named_steps['preprocessing'].get_feature_names_out()
+lasso_coef = best_lasso.named_steps['lasso_regression'].coef_
+
+#Pair them into a series for interpretation
+# Sort by absolute value (most to least important)
+the_series = pd.Series(lasso_coef, index=feature_names)
+series_sorted3 = the_series.sort_values(key=abs, ascending=False)
+
+series_sorted3
+```
+
+The largest coefficient is for Career Runs (CRuns) which is therefore the most important in predicting salary. This is the largest positive coefficient which indicates that players who have scored more career runs tend to earn higher salaries. 
+Hits and Career RBIs (CRBI) also have large positive coefficients, suggesting that consistent hitters and players who make consistent runs are paid more. PutOuts also has a positive effect, so defensive contributions also influence salary in this model.
+Overall, the Lasso model emphasizes a small set of strong predictors with other coefficients being made into 0 effect on the model.
+This model overall is trying to use as few variables as possible. 
+
+Report the MSE you would expect if you used this pipeline to predict 1989 salaries.
+
+```{python}
+lasso_cv_scores = cross_val_score(
+    lasso_pipeline,  # your full Lasso pipeline
+    X,
+    y,
+    cv=5,
+    scoring='neg_mean_squared_error'
+)
+
+mse_scores = -lasso_cv_scores
+
+#expected/mean MSE
+expected_mse = np.mean(mse_scores)
+expected_mse
+
+```
+
+## d. elastic net 
+
+Create a pipeline that includes all the columns as predictors for Salary, and performs ordinary ridge regression
+
+
+```{python}
+elastic_pipeline = Pipeline(
+    [("preprocessing", ct),
+     ("elastic_net", ElasticNet())]
+)
+```
+
+Use cross-validation to tune the and hyperparameters. Fit the pipeline with your chosen hyperparameters to the full dataset, and interpret a few of the most important coefficients.
+
+```{python}
+param_grid = {
+    "elastic_net__alpha": [1, 10, 100],
+    "elastic_net__l1_ratio": np.arange(0.0, 1.2, 0.2),
+}
+elastic_grid = GridSearchCV(elastic_pipeline, param_grid=param_grid, cv=5, scoring='neg_mean_squared_error')
+elastic_fitted = elastic_grid.fit(X, y)
+
+# Get best Elastic Net model and coefficients
+best_elastic = elastic_fitted.best_estimator_
+elastic_coef = best_elastic.named_steps['elastic_net'].coef_
+
+# Feature names after preprocessing
+feature_names = best_elastic.named_steps['preprocessing'].get_feature_names_out()
+
+# Pair into a Series and sort by absolute importance
+the_series = pd.Series(elastic_coef, index=feature_names)
+series_sorted4 = the_series.sort_values(key=abs, ascending=False)
+
+series_sorted4
+```
+
+This output is most similar to ridge regression but with lower values overall for every coefficient. The most important predictor of salary for this model is PutOuts, indicating that players who record more outs tend to earn higher salaries. Hits is the next most important and has a large positive coefficient, showing that players who get more hits are paid more. Walks also positively influences salary, so players who are good at getting on base are rewarded. Career Hits (CHits) and Career Runs (CRuns) also both have strong positive effects, showing that overall for the top influencial variables preforming well on offense and defence is a good predictor or salary. This model overall is a mix of lasso and ridge regression models. 
+
+Report the MSE you would expect if you used this pipeline to predict 1989 salaries.
+
+```{python}
+elastic_cv_scores = cross_val_score(
+    elastic_pipeline,  
+    X,
+    y,
+    cv=5,
+    scoring='neg_mean_squared_error'
+)
+
+mse_scores = -elastic_cv_scores
+
+expected_mse = np.mean(mse_scores)
+expected_mse
+```
+
+
+# Part 2: Variable Selection
+
+```{python}
+# creating a dataframe to compare coefficients more easily
+coef_compare = pd.DataFrame({
+    'Feature': feature_names,
+    'lr': lr_coef,
+    'ridge': ridge_coef,
+    'lasso': lasso_coef,
+    'elastic': elastic_coef
+})
+
+coef_compare
+```
+
+```{python}
+#filter to only numeric features and make a copy of the dataframe to avoid messing up the original
+numeric_features = coef_compare[~coef_compare['Feature'].str.contains('dummify__')].copy()
+
+#add columns that are the absolute values of the coefficient values for each model (to avoid negatives messing things up)
+numeric_features['lr_abs'] = numeric_features['lr'].abs()
+numeric_features['ridge_abs'] = numeric_features['ridge'].abs()
+numeric_features['lasso_abs'] = numeric_features['lasso'].abs()
+numeric_features['elastic_abs'] = numeric_features['elastic'].abs()
+
+# For each model, find which features are in top 5 by absolute coefficient value, largest to smallest
+#make these into new columns with true or false values for whether or not they are in the top 5
+numeric_features['lr_top5'] = numeric_features['lr_abs'].rank(ascending=False) <= 5
+numeric_features['ridge_top5'] = numeric_features['ridge_abs'].rank(ascending=False) <= 5
+numeric_features['lasso_top5'] = numeric_features['lasso_abs'].rank(ascending=False) <= 5
+numeric_features['elastic_top5'] = numeric_features['elastic_abs'].rank(ascending=False) <= 5
+
+#Count how many models put each variable in top 5
+numeric_features['top5_count'] = (numeric_features[['lr_top5', 'ridge_top5', 'lasso_top5', 'elastic_top5']]
+).sum(axis=1)
+
+# Get ranks/position number of variable for each model (lower rank = more important)
+#this fixes the issue of having ties in top5_count
+numeric_features['lr_rank'] = numeric_features['lr_abs'].rank(ascending=False)
+numeric_features['ridge_rank'] = numeric_features['ridge_abs'].rank(ascending=False)
+numeric_features['lasso_rank'] = numeric_features['lasso_abs'].rank(ascending=False)
+numeric_features['elastic_rank'] = numeric_features['elastic_abs'].rank(ascending=False)
+
+# Calculate average rank/position across all four models (lower position is better)
+numeric_features['avg_rank'] = numeric_features[['lr_rank', 'ridge_rank', 'lasso_rank', 'elastic_rank']].mean(axis=1)
+
+# Find features with highest top5_count
+max_top5_count = numeric_features['top5_count'].max()
+
+#contains all features that tied for the highest number of top-5 appearances.
+tied_features = numeric_features[numeric_features['top5_count'] == max_top5_count]
+
+# Among tied features, pick the one with lowest average rank
+best_numeric_var = tied_features.loc[tied_features['avg_rank'].idxmin(), 'Feature']
+
+numeric_features
+```
+
+Which numeric variable is most important 
+
+```{python}
+best_numeric_var
+```
+
+
+Rather than averaging, I decided to respect that each model has its own definition of importance, and instead looked for consensus across models. The numerical feature counted the most often in the top 5 most important (largest) for each model was ranked as most important. If a variable was tied, then the variable with the lowest rank won (meaning it had a consistantly lower position than the other variable). See dataframe as it is easier to see what I did on the dataframe itself. 
+
+```{python}
+# Get top 5 numeric variables (sorted by top5_count descending, then avg_rank ascending for ties)
+top_5_numeric_vars = numeric_features.sort_values(['top5_count', 'avg_rank'], ascending=[False, True]).head(5)['Feature'].tolist()
+top_5_numeric_vars
+```
+
+```{python}
+# Filter to only categorical features (only has dummy variables)
+categorical_features = coef_compare[coef_compare['Feature'].str.contains('dummify__')].copy()
+
+# Add absolute coefficient columns
+categorical_features['lr_abs'] = categorical_features['lr'].abs()
+categorical_features['ridge_abs'] = categorical_features['ridge'].abs()
+categorical_features['lasso_abs'] = categorical_features['lasso'].abs()
+categorical_features['elastic_abs'] = categorical_features['elastic'].abs()
+
+# For each model, find which features are in top 5 by absolute coefficient value
+categorical_features['lr_top5'] = categorical_features['lr_abs'].rank(ascending=False) <= 5
+categorical_features['ridge_top5'] = categorical_features['ridge_abs'].rank(ascending=False) <= 5
+categorical_features['lasso_top5'] = categorical_features['lasso_abs'].rank(ascending=False) <= 5
+categorical_features['elastic_top5'] = categorical_features['elastic_abs'].rank(ascending=False) <= 5
+
+# Count how many models put each feature in top 5
+categorical_features['top5_count'] = (
+    categorical_features[['lr_top5', 'ridge_top5', 'lasso_top5', 'elastic_top5']]
+).sum(axis=1)
+
+# Get ranks for each model (lower rank = more important)
+categorical_features['lr_rank'] = categorical_features['lr_abs'].rank(ascending=False)
+categorical_features['ridge_rank'] = categorical_features['ridge_abs'].rank(ascending=False)
+categorical_features['lasso_rank'] = categorical_features['lasso_abs'].rank(ascending=False)
+categorical_features['elastic_rank'] = categorical_features['elastic_abs'].rank(ascending=False)
+
+# Calculate average rank across all four models
+categorical_features['avg_rank'] = categorical_features[['lr_rank', 'ridge_rank', 'lasso_rank', 'elastic_rank']].mean(axis=1)
+
+# Find features with highest top5_count
+max_top5_count = categorical_features['top5_count'].max()
+tied_features = categorical_features[categorical_features['top5_count'] == max_top5_count]
+
+# Among tied features, pick the one with lowest average rank
+best_categorical_var = tied_features.loc[tied_features['avg_rank'].idxmin(), 'Feature']
+
+categorical_features
+```
+
+now finding the average of all the averages in avg_rank for each cetagorical variable type (trying to recombine dummy variables in a way)
+```{python}
+league_avg = categorical_features[categorical_features['Feature'].isin(['dummify__League_A', 'dummify__League_N'])]['avg_rank'].mean()
+league_avg 
+```
+
+```{python}
+division_avg = categorical_features[categorical_features['Feature'].isin(['dummify__Division_E', 'dummify__Division_W'])]['avg_rank'].mean()
+division_avg
+```
+
+```{python}
+newleague_avg = categorical_features[categorical_features['Feature'].isin(['dummify__NewLeague_A', 'dummify__NewLeague_N'])]['avg_rank'].mean()
+newleague_avg
+```
+
+```{python}
+best_categorical_var
+```
+
+Given the above analysis, the best categorical variable is **Division** as you can see from both the best_categorical_var (outputting a dummy variable) and the overall combined avg_rank score for the Division categorical variable as a whole being the lowest. 
+
+Starting off same as before by defining column transform
+
+```{python}
+# Define column transform for each type of variable wanted (each possible feature set)
+
+# Only best numeric variable (Hits)
+ct_single = ColumnTransformer([
+    ("standardize", StandardScaler(), ['Hits'])
+], remainder="drop")
+
+#Top 5 numeric variables (standardize__Hits','standardize__CRuns','standardize__PutOuts','standardize__Walks','standardize__CRBI')
+ct_top5 = ColumnTransformer([
+    ("standardize", StandardScaler(), ['Hits', 'CRuns', 'PutOuts', 'Walks', 'CRBI'])
+], remainder="drop")
+
+#Top 5 numeric and categorical (Division since it was found to be the best) with interactions 
+#First create the base transformer
+ct_base = ColumnTransformer([
+    ("dummify", OneHotEncoder(sparse_output=False), ['Division']),
+    ("standardize", StandardScaler(), ['Hits', 'CRuns', 'PutOuts', 'Walks', 'CRBI'])
+], remainder="drop")
+
+# Then create interactions using Pipeline
+ct_top5_cat = Pipeline([
+    ("preprocessing", ct_base),
+    ("interactions", PolynomialFeatures(degree=2, interaction_only=True, include_bias=False))
+])
+```
+
+Decided to create a bunch of functions because this part seemed repetative and just like the above that i had just done before
+
+```{python}
+def test_linear(ct):
+    """Test linear regression with given column transformer"""
+    lr_pipeline = Pipeline([("preprocessing", ct), ("linear_regression", LinearRegression())])
+    lr_pipeline.fit(X, y)
+    mse = -cross_val_score(lr_pipeline, X, y, cv=5, scoring='neg_mean_squared_error').mean()
+    coef = lr_pipeline.named_steps['linear_regression'].coef_
+    return mse, coef
+
+def test_ridge(ct):
+    """Test ridge regression with hyperparameter tuning"""
+    ridge_pipeline = Pipeline([("preprocessing", ct), ("ridge_regression", Ridge())])
+    ridge_grid = GridSearchCV(ridge_pipeline, {'ridge_regression__alpha': [0.01, 0.1, 1, 10, 100]}, cv=5, scoring='neg_mean_squared_error')
+    ridge_grid.fit(X, y)
+    mse = -ridge_grid.best_score_
+    coef = ridge_grid.best_estimator_.named_steps['ridge_regression'].coef_
+    return mse, coef
+
+def test_lasso(ct):
+    """Test lasso regression with hyperparameter tuning"""
+    lasso_pipeline = Pipeline([("preprocessing", ct), ("lasso_regression", Lasso())])
+    lasso_grid = GridSearchCV(lasso_pipeline, {'lasso_regression__alpha': [0.01, 0.1, 1, 10, 100]}, cv=5, scoring='neg_mean_squared_error')
+    lasso_grid.fit(X, y)
+    mse = -lasso_grid.best_score_
+    coef = lasso_grid.best_estimator_.named_steps['lasso_regression'].coef_
+    return mse, coef
+
+def test_elastic(ct):
+    """Test elastic net with hyperparameter tuning"""
+    elastic_pipeline = Pipeline([("preprocessing", ct), ("elastic_net", ElasticNet())])
+    elastic_grid = GridSearchCV(elastic_pipeline, {'elastic_net__alpha': [0.1, 1, 10], 'elastic_net__l1_ratio': [0.2, 0.5, 0.8]}, cv=5, scoring='neg_mean_squared_error')
+    elastic_grid.fit(X, y)
+    mse = -elastic_grid.best_score_
+    coef = elastic_grid.best_estimator_.named_steps['elastic_net'].coef_
+    return mse, coef
+```
+
+```{python}
+# Test all possible combinations
+#the zero is getting just the mse value
+results = [
+    ['single_best', 'linear', test_linear(ct_single)[0]],
+    ['single_best', 'ridge', test_ridge(ct_single)[0]],
+    ['single_best', 'lasso', test_lasso(ct_single)[0]],
+    ['single_best', 'elastic', test_elastic(ct_single)[0]],
+    
+    ['top_5', 'linear', test_linear(ct_top5)[0]],
+    ['top_5', 'ridge', test_ridge(ct_top5)[0]],
+    ['top_5', 'lasso', test_lasso(ct_top5)[0]],
+    ['top_5', 'elastic', test_elastic(ct_top5)[0]],
+    
+    ['top_5_categorical', 'linear', test_linear(ct_top5_cat)[0]],
+    ['top_5_categorical', 'ridge', test_ridge(ct_top5_cat)[0]],
+    ['top_5_categorical', 'lasso', test_lasso(ct_top5_cat)[0]],
+    ['top_5_categorical', 'elastic', test_elastic(ct_top5_cat)[0]]]
+```
+
+```{python}
+# Convert to DataFrame 
+results_df = pd.DataFrame(results, columns=['feature_set', 'model', 'mse'])
+
+#results_df
+
+# Created pivot table to make it easier to see
+results_table = results_df.pivot(index='feature_set', columns='model', values='mse')
+results_table
+
+```
+
+```{python}
+# Find best combination
+#looks at mse in results_df and finds the row number of the smallert mse value 
+best_idx = results_df['mse'].idxmin()
+
+#given the row number of the smallest mse value, returns that whole row
+best = results_df.loc[best_idx]
+best
+```
+
+# Part 3: Discussion
+
+## a. Ridge 
+
+Compare your Ridge models with your ordinary regression models. How did your coefficients compare? Why does this make sense?
+
+```{python}
+# Single_best
+single_features = ct_single.get_feature_names_out()
+linear_coef = test_linear(ct_single)[1]
+pd.Series(linear_coef, index=single_features)
+```
+
+```{python}
+ridge_coef = test_ridge(ct_single)[1]
+pd.Series(ridge_coef, index=single_features)
+```
+
+```{python}
+# Top_5
+top5_features = ct_top5.get_feature_names_out()
+linear_coef = test_linear(ct_top5)[1]
+pd.Series(linear_coef, index=top5_features) 
+```
+
+```{python}
+ridge_coef = test_ridge(ct_top5)[1]
+pd.Series(ridge_coef, index=top5_features)
+```
+
+```{python}
+# Top_5_categorical
+top5_cat_features = ct_top5_cat.get_feature_names_out()
+linear_coef = test_linear(ct_top5_cat)[1]
+pd.Series(linear_coef, index=top5_cat_features)
+```
+
+```{python}
+ridge_coef = test_ridge(ct_top5_cat)[1]
+pd.Series(ridge_coef, index=top5_cat_features)
+```
+
+Looking at my results the Ridge coefficients were generally smaller than Linear regression coefficients. For example, with the single best feature, Linear had a coefficient of 195.33 while Ridge was 188.09. This makes sense because Ridge regression adds a penalty that shrinks coefficients toward zero to prevent overfitting. This makes the model more stable, so even with the top 5 cetagorical model having too many coefficients, Ridge regression is doing better than linear and trying to adjust values (which explains why for this model the general rule of it being smaller isn't followed).
+
+## b. LASSO
+
+```{python}
+#finding lambda again to be able to see it visually and return it/compare it
+#lambda part 1
+lasso_pipeline_all = Pipeline([("preprocessing", ct), ("lasso_regression", Lasso())])
+lasso_grid_all = GridSearchCV(lasso_pipeline_all, {'lasso_regression__alpha': [0.01, 0.1, 1, 10, 100]}, cv=5, scoring='neg_mean_squared_error')
+lasso_grid_all.fit(X, y)
+lambda_part1 = lasso_grid_all.best_params_['lasso_regression__alpha']
+
+#part 2
+lambda_part2 = test_lasso(ct_top5_cat)  
+lasso_pipeline_part2 = Pipeline([("preprocessing", ct_top5_cat), ("lasso_regression", Lasso())])
+lasso_grid_part2 = GridSearchCV(lasso_pipeline_part2, {'lasso_regression__alpha': [0.01, 0.1, 1, 10, 100]}, cv=5, scoring='neg_mean_squared_error')
+lasso_grid_part2.fit(X, y)
+lambda_part2 = lasso_grid_part2.best_params_['lasso_regression__alpha']
+
+lambda_part1, lambda_part2 
+```
+
+Model 1 Lasso MSE: np.float64(96038.67903965258)
+
+See above table for model 2 Lasso MSE results. 
+
+Yes they return the same Lambda values because both models chose from the available options [0.01, 0.1, 1, 10, 100] because lambda controls regularization strength. Lambda doesn't have to do with number of features which is the difference between the two models. 
+
+Different MSEs: The MSEs were different because Model 1 used all features while Part 2 models used only the selected features. More features usually means better fit and lower MSE which you can see as model 2 gets more features it does a bit better (though there is a cuttoff for features being beneficial).
+
+This does make sense because lambda is about penalizing coefficients which can be the same between both models and MSEs change because you're comparing models with different amounts of information available.
+
+## c. Elatic net
+
+See table above from earlier 
+
+Elastic Net wins because it combines both Ridge and lasso penalties. This gives elastic net the flexibility to both shrink coefficients like Ridge and perform feature selection like lasso (see part 1 for a better visual of this happening with the coefficients). This approach allows it to handle different types of data problems better than either method aloe because gets the best of both worlds.
+
+# Part 5: Final Model
+
+```{python}
+# Fit the best pipeline on full dataset, best model is elastic net
+best_pipeline = Pipeline([
+    ("preprocessing", ct_top5_cat),
+    ("elastic_net", ElasticNet())
+])
+
+elastic_grid_final = GridSearchCV(
+    best_pipeline, 
+    {'elastic_net__alpha': [0.1, 1, 10], 'elastic_net__l1_ratio': [0.2, 0.5, 0.8]}, 
+    cv=5, 
+    scoring='neg_mean_squared_error'
+)
+elastic_grid_final.fit(X, y)
+
+```
+
+```{python}
+#predictions for plotting
+final_model = elastic_grid_final.best_estimator_
+y_pred = final_model.predict(X)
+```
+
+```{python}
+# DataFrame for plotting
+plot_data = pd.DataFrame({
+    'actual': y,
+    'predicted': y_pred
+})
+
+plot = (ggplot(plot_data, aes(x='actual', y='predicted')) +
+        geom_point(alpha=0.6) +
+        geom_abline(intercept=0, slope=1, color='blue', linetype='dashed') +
+        labs(x='Actual Salary', y='Predicted Salary', 
+             title='Final Model: Elastic Net with Top 5 and Categorical Features') +
+        theme_minimal())
+
+plot
+```
