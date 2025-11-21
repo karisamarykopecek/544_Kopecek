@@ -1,0 +1,928 @@
+---
+title: "Lab 7"
+author: Karisa Kopecek
+date: today
+format:
+  html:
+    toc: true
+    toc-location: right
+    embed-resources: true
+    echo: true
+    code-fold: false
+---
+
+# The Data
+
+```{python}
+import numpy as np
+import pandas as pd
+from plotnine import *
+from sklearn.linear_model import LinearRegression
+from sklearn.preprocessing import OneHotEncoder
+from sklearn.metrics import mean_squared_error, r2_score
+from sklearn.pipeline import Pipeline
+from sklearn.compose import make_column_selector, ColumnTransformer
+from sklearn.preprocessing import StandardScaler, OneHotEncoder, PolynomialFeatures
+from sklearn.linear_model import LinearRegression, Ridge, Lasso, ElasticNet
+from sklearn.model_selection import train_test_split, cross_val_score, GridSearchCV
+from sklearn.neighbors import KNeighborsClassifier
+import pandas as pd
+import numpy as np
+from sklearn.pipeline import Pipeline
+from sklearn.preprocessing import StandardScaler
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn.linear_model import LogisticRegression
+from sklearn.tree import DecisionTreeClassifier
+from sklearn.model_selection import cross_val_score
+from sklearn.metrics import confusion_matrix, roc_curve
+import matplotlib.pyplot as plt
+from sklearn.model_selection import train_test_split
+from sklearn.model_selection import GridSearchCV
+from sklearn.model_selection import cross_val_score
+```
+
+```{python}
+
+df = pd.read_csv("https://www.dropbox.com/s/aohbr6yb9ifmc8w/heart_attack.csv?dl=1")
+
+df.head()
+
+```
+
+```{python}
+df.info()
+```
+
+```{python}
+df.describe()
+```
+
+```{python}
+#see the duplicates in the dataset
+df.duplicated().sum()
+df[df.duplicated(keep=False)]
+```
+
+removed duplicates
+
+```{python}
+#drop those duplicates
+df = df.drop_duplicates()
+```
+
+```{python}
+#missing values sum
+df.isnull().sum()
+```
+
+no rows with missing values, so don't need to worry about that
+
+```{python}
+#making a plot of my target vairable to check for outliers, so that I can fix it if that is an issue
+(ggplot(df, aes(x='output')) +
+ geom_histogram() +
+ labs(title='Output graph', x='output') +
+ theme_minimal())
+```
+
+```{python}
+#making a plot of other variables to see issues with them also since there are so few of them
+(ggplot(df, aes(x='age')) +
+ geom_histogram() +
+ labs(title='Age graph', x='age') +
+ theme_minimal())
+```
+
+```{python}
+#making a plot of other variables to see issues with them also since there are so few of them
+(ggplot(df, aes(x='sex')) +
+ geom_histogram() +
+ labs(title='Sex graph', x='sex') +
+ theme_minimal())
+```
+
+```{python}
+#making a plot of other variables to see issues with them also since there are so few of them
+(ggplot(df, aes(x='cp')) +
+ geom_histogram() +
+ labs(title='cp graph', x='cp') +
+ theme_minimal())
+```
+
+```{python}
+#making a plot of other variables to see issues with them also since there are so few of them
+(ggplot(df, aes(x='trtbps')) +
+ geom_histogram() +
+ labs(title='trtbps graph', x='trtbps') +
+ theme_minimal())
+```
+
+```{python}
+#making a plot of other variables to see issues with them also since there are so few of them
+(ggplot(df, aes(x='chol')) +
+ geom_histogram() +
+ labs(title='chol graph', x='chol') +
+ theme_minimal())
+```
+
+removed outliers (cholesterol past 500)
+
+```{python}
+#Removing outliers past 500 based on histogram from before (felt like cholesterol past that was outliers and unreliable)
+df = df[df['chol'] < 500]
+```
+
+```{python}
+#making a plot of other variables to see issues with them also since there are so few of them
+(ggplot(df, aes(x='chol')) +
+ geom_histogram() +
+ labs(title='chol graph', x='chol') +
+ theme_minimal())
+```
+
+```{python}
+#making a plot of other variables to see issues with them also since there are so few of them
+(ggplot(df, aes(x='restecg')) +
+ geom_histogram() +
+ labs(title='restecg graph', x='restecg') +
+ theme_minimal())
+```
+
+```{python}
+#making a plot of other variables to see issues with them also since there are so few of them
+(ggplot(df, aes(x='thalach')) +
+ geom_histogram() +
+ labs(title='thalach graph', x='thalach') +
+ theme_minimal())
+```
+
+## Summary of my Concerns about Data
+
+The age of patients does not go below 30 or above 80 years old (relatively normal age graph, just wanted to state that for accuracy). Also, the sex of the patient is very biased towards patients categorized as 1 because there are just way more patients categorized as 1 for the sex variable. There are also way more asymtomatic patients in this dataset. I removed patients past 500 for cholesterol because i thought beyond 500 was an outlier and unreliable. For resteg Value 2 (showing probable or definite left ventricular hypertrophy by Estes’ criteria) there is only like 1 value that meets that criteria, thus may throw off results in some ways.
+
+# Part One: Fitting Models
+
+Initially, I dfeined some functions to better understand gridsearch cv and help myself see what was going on. Hopwever, I later replaced parts of my code and didn't end up using this code. I kept it though becuase it helps me understand my steps.
+
+I am going to first define some functions to use to make all of the steps easier
+
+```{python}
+# model expects something like: model = Pipeline([('scaler', StandardScaler()), ('knn', KNeighborsClassifier(n_neighbors=5))])
+#X is all features except output: X = ha.drop('output', axis=1)
+#what we want to predict, the output: y = ha['output']
+
+def evaluate_model_cv(model, X, y):
+    """
+    Evaluate a model using cross-validation ROC AUC
+    
+    Parameters
+    ----------
+    model : pipeline
+        Machine learning pipeline to evaluate
+    X : DataFrame
+    y : Series  
+        Target variable
+        
+    Returns
+    -------
+    float
+        Cross-validated ROC AUC score
+    """
+    
+    #preforms 5 fold cross validation and scores each model
+    # returns model’s ROC AUC on each one of the 5 test folds, then get the average of those 5 numbers and return that
+    cv_scores = cross_val_score(model, X, y, cv=5, scoring='roc_auc')
+    return cv_scores.mean()
+```
+
+```{python}
+# models expects a bunch of piplines [Pipeline(...KNN with k=3...), Pipeline(...KNN with k=5...),] etc
+#x and y same as above
+
+def find_best_model(models, X, y):
+    """
+    Find the best model from a list based on cross-validated ROC AUC
+    
+    Parameters
+    ----------
+    models : list
+        List of pipelines to compare
+    X : DataFrame
+    y : Series
+        Target variable
+        
+    Returns
+    -------
+    tuple
+        Best model and its ROC AUC score
+    """
+    #sets best score at 0
+    best_score = 0
+
+    #sets up empty best model
+    best_model = None
+    
+    #takes each pipline from the list (each model) 
+    for model in models:
+        #running function from before to score each model getting roc auc for each model
+        score = evaluate_model_cv(model, X, y)
+        #updating best score and best model based on the roc auc that is returned
+        if score > best_score:
+            best_score = score
+            best_model = model
+    #returning the best model with the best score
+    return best_model, best_score
+```
+
+## KNN
+
+**note: I'm interpreting different pipelines as the different values of param_grid, since GridSearchCV selects the best model from those parameters.**
+
+```{python}
+X = df.drop('output', axis=1)  
+y = df['output']
+```
+
+Find the best model based on ROC AUC for predicting the target variable.
+
+Report the (cross-validated!) ROC AUC metric
+
+```{python}
+
+# Create a single pipeline with a scaler and a KNN classifier
+pipe = Pipeline([
+    ('scaler', StandardScaler()),
+    ('knn', KNeighborsClassifier())
+])
+
+# Try a few different KNN pipelines by letting GridSearchCV swap components:
+#in order:
+#with vs without scaling
+#diff distance types
+#different k values
+param_grid = {
+    'scaler': [StandardScaler(), 'passthrough'],   # two preprocessing pipelines
+    'knn__metric': ['euclidean', 'manhattan'], # distance types
+    'knn__n_neighbors': [17, 18, 19, 16, 15]       
+}
+
+# Set up GridSearchCV (ROC AUC, 5-fold CV, parallel, refit best)
+gs = GridSearchCV(pipe, param_grid, scoring='roc_auc', cv=5, n_jobs=-1, refit=True)
+
+# Run the grid search to find the best KNN pipeline and parameters
+gs.fit(X, y)
+
+# Retrieve the best model (the pipeline with the best scaler/k etc combo)
+best_knn_model = gs.best_estimator_
+
+# Retrieve the best average ROC AUC score from cross-validation
+knn_roc_auc = gs.best_score_
+
+# display ROC AUC score of the best model
+knn_roc_auc
+
+```
+
+describe all of the models explored:
+
+I evaluated performance using 5-fold cross-validated ROC AUC. I explored KNN models with 3, 5,7,10 15, and 20. I then narrowed my k down to a value around 20 based on those results. From there as you can see above, I tested a bunch of values around 20/17. The K focuses on how many nearest neighbors are fit with the model. I was able to evaluate how the number of neighbors affects model performance. Smaller k values capture finer details but risk overfitting, while larger k values produce smoother, more generalized decision boundaries that may underfit the data. I also looked at different distance types, manhattan or euclidean with a better preformance from manhattan. I also looked at whether or not to use standardscaler() but it worked better when using it.
+
+Fit the final model.
+
+Output a confusion matrix; that is, the counts of how many observations fell into each predicted class for each true class.
+
+```{python}
+# Fit the final best KNN model
+best_knn_model.fit(X, y)
+
+# Output confusion matrix
+knn_predictions = best_knn_model.predict(X)
+knn_conf_matrix = confusion_matrix(y, knn_predictions)
+knn_conf_matrix
+
+```
+
+which k and other values were chosen
+
+```{python}
+#accessing knn within the pipline and gives me the knn model and the number given by the best knn for example 7
+#essentially finds the number of k neighbors used by the KNN classifier in the best model
+best_k = best_knn_model.named_steps['knn'].n_neighbors
+best_k
+```
+
+```{python}
+# Retrieve the distance type
+best_metric = best_knn_model.named_steps['knn'].metric
+best_metric
+```
+
+```{python}
+# Retrieve whether scaling was applied or skipped
+best_scaler = best_knn_model.named_steps['scaler']
+best_scaler
+```
+
+(Where applicable) Interpret the coefficients and/or estimates produced by the model fit:
+
+The KNN model does not produce coefficients. But you can interpret k = 17 and and confusion matrix and ROC/AUC from above.
+
+Confusion Matrix:
+
+95 patients who did not have a heart attack were correctly predicted as 0 (no)
+
+116 patients who did have a heart attack were correctly predicted as yes.
+
+32 were false alarms (yes but actually no).
+
+28 were missed (no but actually yes).
+
+The best k value found was 18 and the best model used manhattan distance and standardscaler was used.
+
+## Logistic Regression
+
+```{python}
+X = df.drop('output', axis=1)  
+y = df['output']
+```
+
+Find the best model based on ROC AUC for predicting the target variable.
+
+Report the (cross-validated!) ROC AUC metric.
+
+```{python}
+#pipeline with Logistic Regression classifier
+logreg_pipe = Pipeline([('scaler', StandardScaler()),                   
+    ('logreg', LogisticRegression(max_iter=1000, random_state=42))])
+
+
+# 'logreg__C' adjusts regularization strength: smaller means stronger regularization
+logreg_param_grid = {
+    'scaler': [StandardScaler(), 'passthrough'],
+    'logreg__C': [0.6, 0.7, 0.8, 0.9, 1.0, 1.2]
+}
+
+# Set up GridSearchCV
+# using ROC AUC as the scoring metric
+# using 5-fold cross-validation
+# n_jobs=-1 uses all CPU cores to speed up computation
+# refit=True automatically retrains the best model on the full dataset
+logreg_gs = GridSearchCV(logreg_pipe, logreg_param_grid, scoring='roc_auc', cv=5, n_jobs=-1, refit=True)
+
+# Run the grid search to find the best combo (scaling option, C) based on ROC AUC
+logreg_gs.fit(X, y)
+
+# Retrieve the best model (the pipeline with the best C)
+best_logreg_model = logreg_gs.best_estimator_
+
+# Retrieve the best average ROC AUC score from cross-validation
+logreg_roc_auc = logreg_gs.best_score_
+
+# display ROC AUC score of the best model
+logreg_roc_auc
+
+```
+
+describe all of the models explored. You should include any hyperparameter tuning steps in your writeup as well:
+
+I used different regularization strengths (C = 0.1, 1, 10) to control model complexity initially, but discovered that values nearer to 1 gave better results, thus I tested values near 1. I discovered that 0.8 preformed better so as you can see above I tested values near 0.8 still ended up keeping 0.8 as the best. I also had two preprocessing options with and without feature scaling. These combinations were tuned automatically using GridSearchCV with 5-fold cross validation using mean ROC AUC.
+
+Fit the final model.
+
+Output a confusion matrix; that is, the counts of how many observations fell into each predicted class for each true class.
+
+```{python}
+# Fit the final best Logistic Regression model 
+best_logreg_model.fit(X, y)
+
+#confusion matrix
+logreg_predictions = best_logreg_model.predict(X)
+logreg_conf_matrix = confusion_matrix(y, logreg_predictions)
+logreg_conf_matrix
+```
+
+```{python}
+# Accessing the logistic regression step within the pipeline and retrieving its coefficients
+logreg_coefficients = best_logreg_model.named_steps['logreg'].coef_[0]
+
+# Combine feature names and coefficients into a DataFrame for interpretation
+logreg_coef_df = pd.DataFrame({
+    'feature': X.columns,
+    'coefficient': logreg_coefficients
+}).sort_values('coefficient', key=abs, ascending=False)
+
+# Display the coefficients sorted by absolute value
+logreg_coef_df
+
+```
+
+```{python}
+# Retrieve whether scaling was applied or skipped
+best_scaler = best_logreg_model.named_steps['scaler']
+best_scaler
+```
+
+```{python}
+# Show which C was best
+best_c = best_logreg_model.named_steps['logreg'].C
+best_c
+```
+
+(Where applicable) Interpret the coefficients and/or estimates produced by the model fit.
+
+The sex of the person, chest pain, and ecg readings were all of high importance to the model. I am hesitant to comment on sex since the model has way more 1's than 0's as shown in data description setps. With more chest pain, there is greater liklihood of a heart attack. With abnormal ecg readings there was more risk of a heart attack.
+
+Confusion Matrix:
+
+94 patients who did not have a heart attack were correctly predicted as 0 (no)
+
+119 patients who did have a heart attack were correctly predicted as yes.
+
+33 were false alarms (yes but actually no).
+
+25 were missed (no but actually yes).
+
+The best model used regularization strength C = 0.8. It also used passthrough and didn't use scaling.
+
+## Decision Tree
+
+```{python}
+X = df.drop('output', axis=1)  
+y = df['output']
+```
+
+Find the best model based on ROC AUC for predicting the target variable.
+
+Report the (cross-validated!) ROC AUC metric.
+
+```{python}
+
+tree_pipe = Pipeline([
+    ('tree', DecisionTreeClassifier(random_state=42))  
+])
+
+#'tree__max_depth': limit depth to control overfitting (or None for full depth)
+#'tree__min_samples_split': min samples required to split an internal node
+# 'tree__min_samples_leaf': min samples required to be at a leaf node
+tree_param_grid = {
+    'tree__max_depth': [2, 3, 4, 5, 6, None],
+    'tree__min_samples_split': [2, 3, 4, 5, 6],
+    'tree__min_samples_leaf': [5, 8, 10, 11, 12, 15]
+}
+
+# Set up GridSearchCV
+# using ROC AUC as the scoring metric
+# using 5-fold cross-validation
+# n_jobs=-1 uses all CPU cores to speed up computation
+# refit=True automatically retrains the best model on the full dataset
+tree_gs = GridSearchCV(tree_pipe, tree_param_grid, scoring='roc_auc', cv=5, n_jobs=-1, refit=True)
+
+# Run the grid search to find the best tree based on ROC AUC
+tree_gs.fit(X, y)
+
+# Retrieve the best model (the pipeline with the best hyperparameters)
+best_tree_model = tree_gs.best_estimator_
+
+# Retrieve the best average ROC AUC score from cross-validation
+tree_roc_auc = tree_gs.best_score_
+
+# display ROC AUC score of the best model
+tree_roc_auc
+
+```
+
+describe all of the models explored. You should include any hyperparameter tuning steps in your writeup as well: started with 'tree\_\_max_depth': \[3, 5, 7, 10, None\], 'tree\_\_min_samples_split': \[2, 5, 10\], 'tree\_\_min_samples_leaf': \[1, 2, 4\] from there I kept exploring until it returned 3,2,11 consistantly. I even expanded my gridsearch and it still came back with those 3 values being the best.
+
+Fit the final model.
+
+Output a confusion matrix; that is, the counts of how many observations fell into each predicted class for each true class.
+
+```{python}
+# Fit the final best Decision Tree model (already refit by GridSearchCV; kept for consistency)
+best_tree_model.fit(X, y)
+
+#confusion matrix
+tree_predictions = best_tree_model.predict(X)
+tree_conf_matrix = confusion_matrix(y, tree_predictions)
+tree_conf_matrix
+
+```
+
+```{python}
+
+# Get feature importance from the best decision tree model
+def get_tree_importance(model, feature_names):
+    """
+    Extract and format decision tree feature importance.
+    """
+    importances = model.named_steps['tree'].feature_importances_
+    importance_df = pd.DataFrame({
+        'feature': feature_names,
+        'importance': importances
+    }).sort_values('importance', ascending=False)
+    return importance_df
+
+tree_importance_df = get_tree_importance(best_tree_model, X.columns)
+
+#sorted feature importance
+tree_importance_df
+
+```
+
+```{python}
+# Show which settings were chosen for the best Decision Tree model
+best_max_depth = best_tree_model.named_steps['tree'].max_depth
+best_max_depth
+```
+
+```{python}
+best_min_split = best_tree_model.named_steps['tree'].min_samples_split
+best_min_split
+```
+
+```{python}
+best_min_leaf = best_tree_model.named_steps['tree'].min_samples_leaf
+best_min_leaf
+```
+
+(Where applicable) Interpret the coefficients and/or estimates produced by the model fit.
+
+chest pain, age, and maximum heart rate achieved during exercise are all the best predictor coefficients for a heart attack in this model. More chest pain correlates with more risk. Higher age and heart rate also correlate with more risk of a heart attack.
+
+Confusion Matrix:
+
+101 patients who did not have a heart attack were correctly predicted as 0 (no)
+
+115 patients who did have a heart attack were correctly predicted as yes.
+
+26 were false alarms (yes but actually no).
+
+29 were missed (no but actually yes).
+
+The best model used depth of 3, split of 2, and leaf min samples of 11.
+
+## Interpretation
+
+scored them myself sex,cp,resteg,,thalach,age,trtbps,chol 4,7,1,5,6,3,2
+
+cp,age, thalach,sex,trtbps,chol,restecg 6,3,4,7,2,1,5
+
+age: 9 thalach: 9 sex: 11 trtbps:5 chol: 3 restecg: 6 cp: 13
+
+The predictors most important in predicting heart attack risk were cp, (maximum heart rate achieved) thalach, and age. Sex ranked high but because of how big a difference in data there was for 1 and 0 I am hesitant to include it (someone would need to get more sex data and retest if sex is a predictor). The Logistic Regression model showed that chest pain type and ECG results increased the likelihood of heart attack, while being male slightly decreased it (but there are issues with sex variable). The Decision Tree model identified chest pain type, heart rate, and age as the most important features. The KNN model does not learn weights or coefficients, and because the data was scaled, each feature contributed equally to how close patients are from one another.
+
+## ROC Curve
+
+```{python}
+# ROC Curves for all three models
+from sklearn.metrics import roc_curve
+
+# Get predicted probabilities for each model
+knn_probas = best_knn_model.predict_proba(X)
+logreg_probas = best_logreg_model.predict_proba(X)
+tree_probas = best_tree_model.predict_proba(X)
+
+# Calculate ROC curves
+knn_fpr, knn_tpr, knn_thresholds = roc_curve(y, knn_probas[:, 1])
+logreg_fpr, logreg_tpr, logreg_thresholds = roc_curve(y, logreg_probas[:, 1])
+tree_fpr, tree_tpr, tree_thresholds = roc_curve(y, tree_probas[:, 1])
+
+# Plot combined ROC curves
+plt.figure(figsize=(8, 6))
+plt.plot(knn_fpr, knn_tpr, label='KNN')
+plt.plot(logreg_fpr, logreg_tpr, label='Logistic Regression') 
+plt.plot(tree_fpr, tree_tpr, label='Decision Tree')
+plt.plot([0, 1], [0, 1], 'k--', label='Random Classifier')
+
+plt.xlabel('False Positive Rate')
+plt.ylabel('True Positive Rate')
+plt.title('ROC Curves Comparison')
+plt.legend()
+plt.show()
+```
+
+The curve shows that all the models preform somewhat similarly. This graph may be overly optimistic about some models.
+
+# Part Two: Metrics
+
+recall, precision, specificity
+
+knn
+
+```{python}
+from sklearn.model_selection import cross_val_score
+
+#Class 1 = heart attack, Class 0 = no heart attack
+is_no_heart_attack = (y == 0)
+
+# KNN Model 
+#True Positive Rate or Recall or Sensitivity = Of the observations that are truly Class A, how many were predicted to be Class A?
+knn_recall = cross_val_score(best_knn_model, X, y, cv=5, scoring='recall').mean()
+#Precision or Positive Predictive Value = Of all the observations classified as Class A, how many of them were truly from Class A?
+knn_precision = cross_val_score(best_knn_model, X, y, cv=5, scoring='precision').mean()
+#True Negative Rate or Specificity or Negative Predictive Value = Of all the observations classified as NOT Class A, how many were truly NOT Class A?
+knn_specificity = cross_val_score(best_knn_model, X, is_no_heart_attack, cv=5, scoring='recall').mean()
+
+# Logistic Regression Model 
+logreg_recall = cross_val_score(best_logreg_model, X, y, cv=5, scoring='recall').mean()
+logreg_precision = cross_val_score(best_logreg_model, X, y, cv=5, scoring='precision').mean()
+logreg_specificity = cross_val_score(best_logreg_model, X, is_no_heart_attack, cv=5, scoring='recall').mean()
+
+# Decision Tree Model 
+tree_recall = cross_val_score(best_tree_model, X, y, cv=5, scoring='recall').mean()
+tree_precision = cross_val_score(best_tree_model, X, y, cv=5, scoring='precision').mean()
+tree_specificity = cross_val_score(best_tree_model, X, is_no_heart_attack, cv=5, scoring='recall').mean()
+
+knn_recall, knn_precision, knn_specificity
+```
+
+logistic
+
+```{python}
+logreg_recall, logreg_precision, logreg_specificity
+```
+
+decision tree
+
+```{python}
+tree_recall, tree_precision, tree_specificity
+```
+
+# Part Three: Discussion
+
+## Q1
+
+**The hospital faces severe lawsuits if they deem a patient to be low risk, and that patient later experiences a heart attack.**
+
+**Which metric(s) you would use for model selection and why.**
+
+I would use recall as the main metric because this measures the proportion of actual heart attack cases that the model correctly identifies. In a lawsuit scenario, it seems like false negatives would be of the most importance. High recall minimizes false negatives, even if it means more false alarms. I would also use ROC/AUC in order to distinguish if the model can tell the difference between having a heart attack and not having a heart attack. I may also use a confusion matrix to make sure the model isn't just making everything a positive or having some kind of weird error with the classification.
+
+**Which of your final models (Part One Q1-3) you would recommend to the hospital, and why.**
+
+I would recommend the Logistic Regression model because it achieved the highest recall (0.812). This means it avoids false negatives that lead to lawsuits the best out of all three models. Also, because all3 ROC AUC scores for the models were similar as well as their confusion matrices being somewhat similar, I would have to rely on this third metric of recall.
+
+**What score you should expect for your chosen metric(s) using your chosen model to predict future observations.**
+
+For ROC/AUC: I would expect about a score of 0.85.
+
+For Confusion Matrix: I would expect only about 20 false negatives and for the other areas of the confusion matrix to have nonzero values with TP and TN being much larger values.
+
+For recall: I would expect about 81% recall (roughly 8 out of 10 actual heart attack cases caught).
+
+## Q2
+
+**The hospital is overfull, and wants to only use bed space for patients most in need of monitoring due to heart attack risk.**
+
+**Which metric(s) you would use for model selection and why.**
+
+I would use Precision as the primary metric because this measures what proportion of patients predicted to be at risk actually are at risk. In this scenario they need to minimize false positives or patients who are predicted to need monitoring but don't actually need it. I would also use ROC/AUC in order to distinguish if the model can tell the difference between having a heart attack and not having a heart attack. I may also use a confusion matrix to make sure the model isn't just making everything negative or having some kind of weird error with the classification. Additonally, I would take recall into account because I also don't want to miss any serious cases.
+
+**Which of your final models (Part One Q1-3) you would recommend to the hospital, and why.**
+
+I recommend the KNN model because it had the second highest precision while still having a high recall. Also, because all 3 ROC AUC scores for the models were similar as well as their confusion matrices being somewhat similar, I would have to rely on this third metric of precision. With high precision, the KNN model is able to most accurately decide who really needs a bed because if it says they are at risk for a heart attack, they most likely will have a heart attack. It also doesn't miss serious cases though.
+
+**What score you should expect for your chosen metric(s) using your chosen model to predict future observations.**
+
+For ROC/AUC: I would expect about a score of 0.82.
+
+For Confusion Matrix: I would expect only about 20 false positives and for the other areas of the confusion matrix to have nonzero values with TP and TN being much larger values.
+
+For precision: I would expect about 81% precision (roughly 8 out of 10 patients classified for heart attack will have heart attack).
+
+## Q3
+
+**The hospital is studying root causes of heart attacks, and would like to understand which biological measures are associated with heart attack risk.**
+
+**Which metric(s) you would use for model selection and why.**
+
+I would prioritize feature importance/coefficient importance for each model because ultimately in this case the hospital is caring about risk factors and the variables that contribute to heart attacks so I would want to make sure those coefficients contributing are accurate. I would also look a little bit at specificity since the hospital is trying to understand patterns between TN and TP. I would also look at ROC/AUC even a little bit more than before in order to distinguish if the model can tell the difference between having a heart attack and not having a heart attack which is even more important in the scenario given. I may also use a confusion matrix to make sure the model isn't just making everything negative or having some kind of weird error with the classification.
+
+**Which of your final models (Part One Q1-3) you would recommend to the hospital, and why.**
+
+I would recommend the logistic regression model because it shows the feature importance clearly in a numerical way. It also has a higher ROC/AUC score than the decision tree. However, sex was a bit of a misleading variable because it had a lot of one type of data in the dataset given, so I would opt to use decision tree as well and recommend they also look at that model just to compare coefficients and make sure the coefficients they list as predictors are as accurate as possible and agreed upon by most models.
+
+**What score you should expect for your chosen metric(s) using your chosen model to predict future observations.**
+
+I would expect that they see that sex, cp, restecg, and thalach are top predictors used in the model. If they did end up comparing the two models and looking closer at sex, I think they would see that chest pain type emerges as the dominant predictor, followed by max heart rate, and then age.
+
+For ROC/AUC: I would expect about a score of 0.85.
+
+For Confusion Matrix: I would expect only about 30 false positives and for the other areas of the confusion matrix to have nonzero values with TP and TN being much larger values.
+
+For specificity: I would expect about 80% specificity.
+
+## Q4
+
+**The hospital is training a new batch of doctors, and they would like to compare the diagnoses of these doctors to the predictions given by the algorithm to measure the ability of new doctors to diagnose patients.**
+
+**Which metric(s) you would use for model selection and why.**
+
+I would use ROC AUC as the primary metric because it is a comprehensive measure of how well the algorithm performs across cases. I may also look at the confusion matrix just to make sure my model isn't doing anything weird that would throw off the ROC AUC score somehow. I would also look at how interpretable the actual model is to doctors.
+
+**Which of your final models (Part One Q1-3) you would recommend to the hospital, and why.**
+
+I would recommend the Decision Tree model because it has the second highest ROC AUC value and it is overall more interpretable to doctors. Doctors could actually follow the thought process of the decision tree and use the decision tree to understand how they should try to think if they are classifying things wrong.
+
+**What score you should expect for your chosen metric(s) using your chosen model to predict future observations.**
+
+I would expect an ROC/AUC score of around 0.82.
+
+# Part Four: Validation
+
+```{python}
+ha_validation = pd.read_csv("https://www.dropbox.com/s/jkwqdiyx6o6oad0/heart_attack_validation.csv?dl=1")
+
+#cleaning data same as before
+ha_validation_clean = ha_validation[ha_validation['chol'] < 500]
+
+#features and target for validation
+X_val = ha_validation_clean.drop('output', axis=1)
+y_val = ha_validation_clean['output']
+```
+
+## Use each of your final models in Part One Q1-3, predict the target variable in the validation dataset.
+
+### KNN
+
+```{python}
+#Use each of your final models in Part One Q1-3, predict the target variable in the validation dataset
+#using best model from before
+knn_val_predictions = best_knn_model.predict(X_val)
+knn_val_probabilities = best_knn_model.predict_proba(X_val)[:, 1]
+
+#For each, output a confusion matrix, and report the ROC AUC, the precision, and the recall.
+knn_val_confusion2 = confusion_matrix(y_val, knn_val_predictions)
+knn_val_roc_auc2 = cross_val_score(best_knn_model, X_val, y_val, cv=5, scoring='roc_auc').mean()
+knn_val_precision2 = cross_val_score(best_knn_model, X_val, y_val, cv=5, scoring='precision').mean()
+knn_val_recall2 = cross_val_score(best_knn_model, X_val, y_val, cv=5, scoring='recall').mean()
+```
+
+confusion matrix
+
+```{python}
+knn_val_confusion2
+```
+
+roc auc
+
+```{python}
+knn_val_roc_auc2
+```
+
+precision
+
+```{python}
+knn_val_precision2
+```
+
+recall
+
+```{python}
+knn_val_recall2
+```
+
+### logistic regression
+
+```{python}
+logreg_val_predictions = best_logreg_model.predict(X_val)
+logreg_val_probabilities = best_logreg_model.predict_proba(X_val)[:, 1]
+
+logreg_val_confusion2 = confusion_matrix(y_val, logreg_val_predictions)
+logreg_val_roc_auc2 = cross_val_score(best_logreg_model, X_val, y_val, cv=5, scoring='roc_auc').mean()
+logreg_val_precision2 = cross_val_score(best_logreg_model, X_val, y_val, cv=5, scoring='precision').mean()
+logreg_val_recall2 = cross_val_score(best_logreg_model, X_val, y_val, cv=5, scoring='recall').mean()
+```
+
+confusion
+
+```{python}
+logreg_val_confusion2
+```
+
+roc auc
+
+```{python}
+logreg_val_roc_auc2
+```
+
+precision
+
+```{python}
+logreg_val_precision2
+```
+
+recall
+
+```{python}
+logreg_val_recall2
+```
+
+### decision tree
+
+```{python}
+tree_val_predictions = best_tree_model.predict(X_val)
+tree_val_probabilities = best_tree_model.predict_proba(X_val)[:, 1]
+
+tree_val_confusion2 = confusion_matrix(y_val, tree_val_predictions)
+tree_val_roc_auc2 = cross_val_score(best_tree_model, X_val, y_val, cv=5, scoring='roc_auc').mean()
+tree_val_precision2 = cross_val_score(best_tree_model, X_val, y_val, cv=5, scoring='precision').mean()
+tree_val_recall2 = cross_val_score(best_tree_model, X_val, y_val, cv=5, scoring='recall').mean()
+```
+
+```{python}
+tree_val_confusion2
+```
+
+```{python}
+tree_val_roc_auc2
+```
+
+```{python}
+tree_val_precision2
+```
+
+```{python}
+tree_val_recall2
+```
+
+
+## Compare these values to the cross-validated estimates you reported in Part One and Part Two. Did our measure of model success turn out to be approximately correct for the validation data?
+
+For the confusion matrices, scroll up to view differences.
+
+For ROC AUC, precision, and recall see below:
+
+```{python}
+#creating a datasframe to make it easier to visualize
+comparison_df = pd.DataFrame({
+    'Model': ['KNN', 'Logistic Regression', 'Decision Tree'],
+    'Part_OneTwo_ROC_AUC': [knn_roc_auc, logreg_roc_auc, tree_roc_auc],
+    'Part_OneTwo_Precision': [knn_precision, logreg_precision, tree_precision],
+    'Part_OneTwo_Recall': [knn_recall, logreg_recall, tree_recall],
+    'Validation_ROC_AUC': [knn_val_roc_auc2, logreg_val_roc_auc2, tree_val_roc_auc2],
+    'Validation_Precision': [knn_val_precision2, logreg_val_precision2, tree_val_precision2],
+    'Validation_Recall': [knn_val_recall2, logreg_val_recall2, tree_val_recall2]
+})
+
+comparison_df
+```
+
+The validation gave us a pretty good idea of how the models would perform, but wasn't perfect. The ROC AUC scores were close to what we expected with estimates only off by 0.02-0.10 ish. The KNN model was worse at precision but better at recall and almost the same at roc auc. The logistic regression model was slightly worse at roc auc, better at precision, and worse at recall. The decision tree was almost the same at auc roc, and better at both precision and recall. Overall, our measure of model success was approximately accurate.
+
+# Part Five: Cohen's Kappa
+
+## Use online resources to research this measurement:
+
+This is what I found: <https://www.statology.org/cohens-kappa-statistic/>
+<https://www.spss-tutorials.com/cohens-kappa-what-is-it/>
+<https://www.statology.org/cohens-kappa-python/>
+<https://scikit-learn.org/stable/modules/generated/sklearn.metrics.cohen_kappa_score.html>
+
+## Calculate it for the models from Part One, Q1-3, and discuss reasons or scenarios that would make us prefer to use this metric as our measure of model success.
+
+knn
+```{python}
+from sklearn.metrics import cohen_kappa_score
+
+# Calculate Cohen's Kappa for the models from Part One, Q1-3
+
+# KNN
+knn_kappa = cohen_kappa_score(y, knn_predictions)
+knn_kappa
+
+```
+
+logistic regression
+```{python}
+
+# Logistic Regression Model  
+logreg_kappa = cohen_kappa_score(y, logreg_predictions)
+logreg_kappa
+
+```
+
+decision tree
+
+```{python}
+# Decision Tree Model
+tree_kappa = cohen_kappa_score(y, tree_predictions)
+tree_kappa
+
+```
+
+```{python}
+#creating dataframe for easy comparison
+kappa_comparison = pd.DataFrame({
+    'Model': ['KNN', 'Logistic Regression', 'Decision Tree'],
+    'Cohen_Kappa': [knn_kappa, logreg_kappa, tree_kappa]
+})
+
+kappa_comparison
+```
+
+Based on the documentation (see above), Cohen's Kappa would be preferred whenever I want to measure how much my model's predictions agree with actual outcomes beyond what you'd expect from just chance.  Kappa corrects for chance or the possibililities that some correct predictions could happen from the model guessing. For our data (heart attack prediction) this is useful because we need to know if our model is truly adding value. It is useful to be able to see model reliability in a quantitative score, so that we know how much to actually trust the models on some level. So, therefore it is a useful score for when decisions need to be made using a model or when there is some level of concern with the data (maybe it is imbalanced etc). It is also a metric that can be more interpretable for stakeholders sometimes. 
+
+## Do your conclusions from above change if you judge your models using Cohen’s Kappa instead? Does this make sense?
+
+Yes, they change because where I thought the models were doing very well (like 80% good), using kohen's capa I can see that a lot of that preformance can be attributed to luck or chance. Using Cohen's Kappa, the Decision Tree becomes the best model (0.59) instead of Logistic Regression being best with ROC AUC (0.854). This makes sense because ROC AUC measures how well models rank patients, while Cohen's Kappa measures the results they have beyond pure chance. All Kappa scores are only moderately good (0.55-0.59), suggesting the models could still be improved a lot before using them for something vital like heart attack prediction. 
